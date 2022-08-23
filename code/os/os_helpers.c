@@ -62,6 +62,6 @@ OS_WriteFile(String8 filename, String8 data)
   String8Node node = {0};
   String8List list = {0};
   Str8ListPushExplicit(&list, data, &node);
-  B32 result = OS_FileWriteList(filename, list);
+  B32 result = OS_WriteListFile(filename, list);
   return(result);
 }
