@@ -11,8 +11,8 @@ typedef U32 U32TimesTwoFuncType(U32 value);
 int
 main(int program_argc, char **program_args)
 {
-  OS_ThreadContext tctx = {0};
-  OS_Main_Init(&tctx, program_argc, program_args);
-  
-  return(0);
+ OS_ThreadContext tctx = {0};
+ OS_Main_Init(&tctx, program_argc, program_args);
+ 
+ return(0);
 }

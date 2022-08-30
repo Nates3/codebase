@@ -186,8 +186,6 @@ typedef void Void_Func(void);
 #define Billion(number)  ((U64)(number)*1000000000llu)
 #define Trillion(number) ((U64)(number)*1000000000000llu)
 
-#define fallthrough
-
 #define StaticAssert(c, l) typedef U8 Glue(l, __LINE__) [(c)?1:-1]
 
 #define Stringify_(S) #S
@@ -289,62 +287,62 @@ Minimum(sizeof(*(D)), sizeof(*(S))))
 
 typedef enum Axis
 {
-  Axis_X,
-  Axis_Y,
-  Axis_Z,
-  Axis_W,
+ Axis_X,
+ Axis_Y,
+ Axis_Z,
+ Axis_W,
 } Axis;
 
 typedef enum Side
 {
-  Side_Min,
-  Side_Max,
+ Side_Min,
+ Side_Max,
 } Side;
 
 typedef enum OperatingSystem
 {
-  OperatingSystem_Null,
-  OperatingSystem_Windows,
-  OperatingSystem_Linux,
-  OperatingSystem_Mac,
-  OperatingSystem_Count,
+ OperatingSystem_Null,
+ OperatingSystem_Windows,
+ OperatingSystem_Linux,
+ OperatingSystem_Mac,
+ OperatingSystem_Count,
 } OperatingSystem;
 
 typedef enum Architecture
 {
-  Architecture_Null,
-  Architecture_X64,
-  Architecture_X86,
-  Architecture_Arm,
-  Architecture_Arm64,
-  Architecture_Count,
+ Architecture_Null,
+ Architecture_X64,
+ Architecture_X86,
+ Architecture_Arm,
+ Architecture_Arm64,
+ Architecture_Count,
 } Architecture;
 
 typedef enum Month
 {
-  Month_Jan,
-  Month_Feb,
-  Month_Mar,
-  Month_Apr,
-  Month_May,
-  Month_Jun,
-  Month_Jul,
-  Month_Aug,
-  Month_Sep,
-  Month_Oct,
-  Month_Nov,
-  Month_Dec,
+ Month_Jan,
+ Month_Feb,
+ Month_Mar,
+ Month_Apr,
+ Month_May,
+ Month_Jun,
+ Month_Jul,
+ Month_Aug,
+ Month_Sep,
+ Month_Oct,
+ Month_Nov,
+ Month_Dec,
 } Month;
 
 typedef enum WeekDay
 {
-  WeekDay_Monday,
-  WeekDay_Tuesday,
-  WeekDay_Wednsday,
-  WeekDay_Thursday,
-  WeekDay_Friday,
-  WeekDay_Saturday,
-  WeekDay_Sunday,
+ WeekDay_Monday,
+ WeekDay_Tuesday,
+ WeekDay_Wednsday,
+ WeekDay_Thursday,
+ WeekDay_Friday,
+ WeekDay_Saturday,
+ WeekDay_Sunday,
 } WeekDay;
 
 ///////////////////////////////////
@@ -353,9 +351,9 @@ typedef enum WeekDay
 typedef U32 DataAccessFlags;
 enum DataAccessFlags
 {
-  DataAccessFlag_Read = (1 << 0),
-  DataAccessFlag_Write = (1 << 1),
-  DataAccessFlag_Execute = (1 << 2),
+ DataAccessFlag_Read = (1 << 0),
+ DataAccessFlag_Write = (1 << 1),
+ DataAccessFlag_Execute = (1 << 2),
 };
 
 ///////////////////////////////
@@ -365,13 +363,13 @@ typedef U64 DenseTime;
 
 typedef struct DateTime
 {
-  U16 ms; // [0,999]
-  U8 sec;   // [0,60] -> 60 and not 59 because of leap seconds
-  U8 min;   // [0,59]
-  U8 hour;  // [0,23]
-  U8 day;   // [0,30]
-  U8 mon;   // [1,12]
-  S16 year; // 1 = 1 CE; 2000 == 2000 CE; 0 = 1 BCE; -100 = 101 BCE
+ U16 ms; // [0,999]
+ U8 sec;   // [0,60] -> 60 and not 59 because of leap seconds
+ U8 min;   // [0,59]
+ U8 hour;  // [0,23]
+ U8 day;   // [0,30]
+ U8 mon;   // [1,12]
+ S16 year; // 1 = 1 CE; 2000 == 2000 CE; 0 = 1 BCE; -100 = 101 BCE
 } DateTime;
 
 ///////////////////////////////
@@ -380,16 +378,16 @@ typedef struct DateTime
 typedef U32 FilePropertyFlags;
 enum FilePropertyFlags
 {
-  FilePropertyFlag_IsFolder = (1 << 0),
+ FilePropertyFlag_IsFolder = (1 << 0),
 };
 
 typedef struct FileProperties
 {
-  U64 size;
-  FilePropertyFlags flags;
-  DenseTime create_time;
-  DenseTime modify_time;
-  DataAccessFlags access;
+ U64 size;
+ FilePropertyFlags flags;
+ DenseTime create_time;
+ DenseTime modify_time;
+ DataAccessFlags access;
 } FileProperties;
 
 ////////////////////////////////

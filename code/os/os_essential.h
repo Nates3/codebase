@@ -11,7 +11,7 @@
 
 typedef struct OS_ThreadContext
 {
-  Arena *scratch_pool[TCTX_SCRATCH_POOL_CAP];
+ Arena *scratch_pool[TCTX_SCRATCH_POOL_CAP];
 } OS_ThreadContext;
 
 
@@ -20,7 +20,7 @@ typedef struct OS_ThreadContext
 
 typedef struct OS_FileIter
 {
-  U8 v[640];
+ U8 v[640];
 } OS_FileIter;
 
 ///////////////////////////////
@@ -29,11 +29,11 @@ typedef struct OS_FileIter
 typedef U32 OS_SystemPath;
 enum OS_SystemPath
 {
-  OS_SystemPath_CurrentDir,
-  OS_SystemPath_ExeDir,
-  OS_SystemPath_UserDir,
-  OS_SystemPath_TempDir,
-  OS_SystemPath_COUNT,
+ OS_SystemPath_CurrentDir,
+ OS_SystemPath_ExeDir,
+ OS_SystemPath_UserDir,
+ OS_SystemPath_TempDir,
+ OS_SystemPath_COUNT,
 };
 
 ////////////////////////////
@@ -43,8 +43,8 @@ typedef U64 OS_Handle;
 
 typedef struct OS_Library
 {
-  OS_Handle handle;
-  DenseTime last_write_time;
+ OS_Handle handle;
+ DenseTime last_write_time;
 } OS_Library;
 
 ///////////////////////////
@@ -52,6 +52,11 @@ typedef struct OS_Library
 
 func_ void OS_Main_Init(OS_ThreadContext *tctx, int argc, char **args);
 func_ String8List OS_GetCommandLineArgs(void);
+
+///////////////////////////////////////////////
+//~ NOTE(nates): Shutdown
+
+func_ void OS_Abort(void);
 
 ///////////////////////////////
 //~ NOTE(nates): Thread Context
@@ -117,5 +122,6 @@ func_ void *     OS_GetLibProc_(OS_Library library, String8 function_name);
 //~ NOTE(nates): Entropy
 
 func_ void OS_GetEntropy(U64 *seed);
+
 
 #endif // OS_ESSENTIAL_H

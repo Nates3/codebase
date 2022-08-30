@@ -7,16 +7,16 @@
 
 typedef struct Arena
 {
-  U64 pos;
-  U64 commit_pos;
-  U64 size;
-  U64 align;
+ U64 pos;
+ U64 commit_pos;
+ U64 size;
+ U64 align;
 }Arena;
 
 typedef struct ArenaTemp
 {
-  Arena *arena;
-  U64 pos;
+ Arena *arena;
+ U64 pos;
 }ArenaTemp;
 
 
@@ -36,6 +36,7 @@ func_ void  *ArenaPush(Arena *arena, U64 size);
 func_ void  *ArenaPushZero(Arena *arena, U64 size);
 func_ void   ArenaPop(Arena *arena, U64 size);
 func_ void   ArenaSetPos(Arena *arena, U64 pos);
+func_ void   ArenaClear(Arena *arena);
 func_ void   ArenaRelease(Arena *arena);
 #define PushArray(arena, type, count) (type *)ArenaPush(arena, sizeof(type)*count)
 #define PushArrayZero(arena, type, count) (type *)ArenaPushZero(arena, sizeof(type)*count);
