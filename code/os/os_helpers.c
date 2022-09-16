@@ -3,65 +3,65 @@
 // NOTE(nates): Thread context functions
 
 func_ void 
-OS_TctxInit(OS_ThreadContext *tctx)
+OS_TctxInit(os_thread_context *tctx)
 {
- Arena **scratch = tctx->scratch_pool;
- for(U32 i = 0; i < ArrayCount(tctx->scratch_pool); ++i, scratch += 1)
- {
-  *scratch = ArenaAlloc(GB(1));
- }
+	arena **scratch = tctx->ScratchPool;
+	for(u32 i = 0; i < ArrayCount(tctx->ScratchPool); ++i, scratch += 1)
+	{
+		*scratch = ArenaAlloc(GB(1));
+	}
 }
 
-func_ Arena *
-OS_TctxGetScratch(OS_ThreadContext *tctx, Arena **conflict_array, U32 count)
+func_ arena *
+OS_TctxGetScratch(os_thread_context *tctx, arena **conflict_array, u32 count)
 {
- Arena *result = 0;
- Arena **scratch = tctx->scratch_pool;
- for(U32 i = 0; i < ArrayCount(tctx->scratch_pool); ++i, scratch += 1)
- {
-  B32 is_non_conflict = true;
-  
-  Arena **conflict_ptr = conflict_array;
-  for(U32 j = 0; j < count; ++j, conflict_ptr += 1)
-  {
-   if(*scratch == *conflict_ptr)
-   {
-    is_non_conflict = false;
-    break;
-   }
-  }
-  
-  if(is_non_conflict)
-  {
-   result = *scratch;
-   break;
-  }
- }
- return(result);
+	arena *result = 0;
+	arena **scratch = tctx->ScratchPool;
+	for(u32 i = 0; i < ArrayCount(tctx->ScratchPool); ++i, scratch += 1)
+	{
+		b32 is_non_conflict = true;
+		
+		arena **conflict_ptr = conflict_array;
+		for(u32 j = 0; j < count; ++j, conflict_ptr += 1)
+		{
+			if(*scratch == *conflict_ptr)
+			{
+				is_non_conflict = false;
+				break;
+			}
+		}
+		
+		if(is_non_conflict)
+		{
+			result = *scratch;
+			break;
+		}
+	}
+	return(result);
 }
 
 ////////////////////////////
 // NOTE(nates): Scratch helper functions
 
-func_ ArenaTemp
-GetScratch(Arena *conflict0, Arena *conflict1)
+func_ arena_temp
+GetScratch(arena *conflict0, arena *conflict1)
 {
- OS_ThreadContext *tctx = (OS_ThreadContext *)OS_TctxGet();
- Arena *conflict_array[2] = {conflict0, conflict1};
- Arena *scratch = OS_TctxGetScratch(tctx, conflict_array, 2);
- return(BeginArenaTemp(scratch));
+	os_thread_context *tctx = (os_thread_context *)OS_TctxGet();
+	arena *conflict_array[2] = {conflict0, conflict1};
+	arena *scratch = OS_TctxGetScratch(tctx, conflict_array, 2);
+	return(BeginArenaTemp(scratch));
 }
 
 
 //////////////////////////////
 // NOTE(nates): OS_File helpers
 
-func_ B32
-OS_WriteFile(String8 filename, String8 data)
+func_ b32
+OS_WriteFile(string8 filename, string8 data)
 {
- String8Node node = {0};
- String8List list = {0};
- PushExplicitStr8List(&list, data, &node);
- B32 result = OS_WriteListFile(filename, list);
- return(result);
+	string8_node node = {0};
+	string8_list list = {0};
+	push_explicit_str8list(&list, data, &node);
+	b32 result = OS_WriteListFile(filename, list);
+	return(result);
 }

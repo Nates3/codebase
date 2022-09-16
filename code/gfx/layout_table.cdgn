@@ -1,0 +1,25 @@
+layout_table(layout, string)
+{
+ {Pos2 POSTWO},
+ {Pos3 POS},
+ {Normal NOR},
+ {TextureCoords TEX},
+ {Color3 TCOLOR},
+ {Color4 QCOLOR},
+}
+
+@generate_block(layout_table)
+
+typedef enum r_layout_element
+{
+ @generate_loop {
+  R_Layout_Element_$layout,
+ },
+} r_layout_element;
+
+global_ char *GLayoutStrings[] = 
+{
+ @generate_loop {
+  "$string",
+ },
+};

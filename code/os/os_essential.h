@@ -9,49 +9,49 @@
 #define TCTX_SCRATCH_POOL_CAP 4
 #endif
 
-typedef struct OS_ThreadContext
+typedef struct os_thread_context
 {
- Arena *scratch_pool[TCTX_SCRATCH_POOL_CAP];
-} OS_ThreadContext;
+  arena *ScratchPool[TCTX_SCRATCH_POOL_CAP];
+} os_thread_context;
 
 
 ////////////////////////////
 //~ NOTE(nates): File iterator
 
-typedef struct OS_FileIter
+typedef struct os_fileiter
 {
- U8 v[640];
-} OS_FileIter;
+	u8 V[640];
+} os_fileiter;
 
 ///////////////////////////////
 // NOTE(nates): File paths
 
-typedef U32 OS_SystemPath;
-enum OS_SystemPath
+typedef u32 os_system_path;
+enum os_system_path
 {
- OS_SystemPath_CurrentDir,
- OS_SystemPath_ExeDir,
- OS_SystemPath_UserDir,
- OS_SystemPath_TempDir,
- OS_SystemPath_COUNT,
+	OS_SystemPath_CurrentDir,
+	OS_SystemPath_ExeDir,
+	OS_SystemPath_UserDir,
+	OS_SystemPath_TempDir,
+	OS_SystemPath_COUNT,
 };
 
 ////////////////////////////
 // NOTE(nates): DLLS
 
-typedef U64 OS_Handle;
+typedef u64 os_handle;
 
-typedef struct OS_Library
+typedef struct os_library
 {
- OS_Handle handle;
- DenseTime last_write_time;
-} OS_Library;
+	os_handle Handle;
+	dense_time LastWriteTime;
+} os_library;
 
 ///////////////////////////
 //~ NOTE(nates): Setup
 
-func_ void OS_Main_Init(OS_ThreadContext *tctx, int argc, char **args);
-func_ String8List OS_GetCommandLineArgs(void);
+func_ void OS_MainInit(os_thread_context *Tctx, int Argc, char **Args);
+func_ string8_list OS_GetCommandLineArgs(void);
 
 ///////////////////////////////////////////////
 //~ NOTE(nates): Shutdown
@@ -67,61 +67,61 @@ func_ void *OS_TctxGet(void);
 //////////////////////////
 // NOTE(nates): Memory Functions
 
-func_ void *OS_ReserveMemory(U64 size);
-func_ void  OS_CommitMemory(void *ptr, U64 size);
-func_ void  OS_DecommitMemory(void *ptr, U64 size);
+func_ void *OS_ReserveMemory(u64 size);
+func_ void  OS_CommitMemory(void *ptr, u64 size);
+func_ void  OS_DecommitMemory(void *ptr, u64 size);
 func_ void  OS_ReleaseMemory(void *base);
 
 ////////////////////////////////
 //~ NOTE(nates): OS_FileFunctions
 
-func_ String8 OS_ReadFile(Arena *arena, String8 filename);
-func_ B32     OS_WriteListFile(String8 filename, String8List data);
+func_ string8 OS_ReadFile(arena *Arena, string8 filename);
+func_ b32     OS_WriteListFile(string8 filename, string8_list data);
 
-func_ FileProperties OS_FileProperties(String8 filename);
+func_ file_properties OS_file_properties(string8 filename);
 
-func_ B32 OS_PathExists(String8 path);
-func_ B32 OS_DeleteFile(String8 filename);
-func_ B32 OS_RenameFile(String8 filename, String8 newname);
-func_ B32 OS_MakeDirectory(String8 path);
-func_ B32 OS_DeleteDirectory(String8 path);
+func_ b32 OS_PathExists(string8 path);
+func_ b32 OS_DeleteFile(string8 filename);
+func_ b32 OS_RenameFile(string8 filename, string8 newname);
+func_ b32 OS_MakeDirectory(string8 path);
+func_ b32 OS_DeleteDirectory(string8 path);
 
-func_ OS_FileIter OS_FileIterInit(String8 path);
-func_ B32  OS_FileIterNext(Arena *arena, OS_FileIter *iter,
-                           String8 *name_out, FileProperties *prop_out);
-func_ void OS_FileIterEnd(OS_FileIter *iter);
+func_ os_fileiter OS_FileIterInit(string8 path);
+func_ b32  OS_FileIterNext(arena *Arena, os_fileiter *iter,
+													 string8 *name_out, file_properties *prop_out);
+func_ void OS_FileIterEnd(os_fileiter *iter);
 
 // NOTE(nates): System paths
 
-func_ String8 OS_FilePath(Arena *arena, OS_SystemPath path);
+func_ string8 OS_SystemPath(arena *Arena, os_system_path path);
 
 /////////////////////////////////
 //~ NOTE(nates): Time functions
 
-func_ DateTime OS_GetUniversalTime(void);
-func_ DateTime OS_LocalTimeFromUniversal(DateTime *time);
-func_ DateTime OS_UniversalTimeFromLocalTime(DateTime *time);
+func_ date_time OS_GetUniversalTime(void);
+func_ date_time OS_LocalTimeFromUniversalTime(date_time *time);
+func_ date_time OS_UniversalTimeFromLocalTime(date_time *time);
 
 // Percision
 
-func_ U64 OS_GetMicroseconds(void);
-func_ U64 OS_GetMilliseconds(void);
-func_ void OS_SleepMS(U64 ms);
+func_ u64 OS_GetMicroSeconds(void);
+func_ u64 OS_GetMilliSeconds(void);
+func_ void OS_SleepMS(u64 ms);
 
 
 //////////////////////////////////////
 //~ NOTE(nates): DLL's
 
-func_ OS_Library OS_LoadLib(String8 filename);
-func_ B32        OS_CloseLib(OS_Library library);
+func_ os_library OS_LoadLib(string8 filename);
+func_ b32        OS_CloseLib(os_library library);
 #define OS_GetLibProc(library, func_name, func_type) \
 (func_type *)OS_GetLibProc_(library, func_name)
-func_ void *     OS_GetLibProc_(OS_Library library, String8 function_name);
+func_ void *     OS_GetLibProc_(os_library library, string8 function_name);
 
 /////////////////////////////////////////
 //~ NOTE(nates): Entropy
 
-func_ void OS_GetEntropy(U64 *seed);
+func_ void OS_GetEntropy(u64 *seed);
 
 
 #endif // OS_ESSENTIAL_H

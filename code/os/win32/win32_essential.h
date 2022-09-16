@@ -10,31 +10,31 @@
 //////////////////////////////////
 // NOTE(nates): Win32 file iter
 
-typedef struct Win32_FileIter
+typedef struct win32_fileiter
 {
-  HANDLE handle;
-  WIN32_FIND_DATAW find_data;
-  B32 done;
-} Win32_FileIter;
+  HANDLE Handle;
+	WIN32_FIND_DATAW FindData;
+	b32 Done;
+} win32_fileiter;
 
-StaticAssert(sizeof(Win32_FileIter) <= sizeof(OS_FileIter), win32_fileiter);
+StaticAssert(sizeof(win32_fileiter) <= sizeof(os_fileiter), win32_fileiter);
 
 /////////////////////////////////////////////////////////////
 // NOTE(nates): Special winmain init function
 
-func_ void Win32_Main_Init(OS_ThreadContext *tctx_memory,
-                           HINSTANCE hInstance, HINSTANCE hPrevInstance,
-                           LPSTR lpCmdLine, int nCmdShow);
+func_ void Win32MainInit(os_thread_context *tctx_memory,
+												 HINSTANCE hInstance, HINSTANCE hPrevInstance,
+												 LPSTR lpCmdLine, int nCmdShow);
 
 ////////////////////////////////////////////////////////////////////
 // NOTE(nates): Win32 time helpers
-func_ FileProperties 
-Win32_FilePropertiesFromFileData(DWORD file_attributes, FILETIME creation_time, 
-                                 FILETIME last_write_time, DWORD file_size_high, 
-                                 DWORD file_size_low);
-func_ DateTime   Win32_DateTimeFromSystemTime(SYSTEMTIME *time);
-func_ SYSTEMTIME Win32_SystemTimeFromDateTime(DateTime *time);
-func_ DateTime   Win32_DateTimeFromFileTime(FILETIME *filetime);
-func_ DenseTime  Win32_DenseTimeFromFileTime(FILETIME *filetime);
+func_ file_properties 
+Win32FilePropertiesFromFileData(DWORD file_attributes, FILETIME creation_time, 
+																FILETIME last_write_time, DWORD file_size_high, 
+																DWORD file_size_low);
+func_ date_time   Win32DateTimeFromSystemTime(SYSTEMTIME *time);
+func_ SYSTEMTIME Win32SystemTimeFromDateTime(date_time *time);
+func_ date_time   Win32DateTimeFromFileTime(FILETIME *filetime);
+func_ dense_time  Win32DenseTimeFromFileTime(FILETIME *filetime);
 
 #endif //WIN32_ESSENTIAL_H
