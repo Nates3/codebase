@@ -10,14 +10,14 @@ layout_table(layout, string)
 
 @generate_block(layout_table)
 
-typedef enum r_layout_element
+typedef enum R_LayoutElement
 {
  @generate_loop {
   R_Layout_Element_$layout,
  },
-} r_layout_element;
+} R_LayoutElement;
 
-global_ char *GLayoutStrings[] = 
+global_ char *g_layout_strings[] = 
 {
  @generate_loop {
   "$string",

@@ -2,73 +2,73 @@
 ///////////////////////////////////////////
 //~ NOTE(nates): Win32 helpers
 
-func_ file_properties
-Win32FilePropertiesFromFileData(DWORD file_attributes, 
-																FILETIME creation_time, FILETIME last_write_time, 
-																DWORD file_size_high, DWORD file_size_low)
+func_ FileProperties
+W32FilePropertiesFromFileData(DWORD file_attributes, 
+															FILETIME creation_time, FILETIME last_write_time, 
+															DWORD file_size_high, DWORD file_size_low)
 {
-	file_properties result = {0};
-	result.Size = ((u64)file_size_high << 32) | (u64)file_size_low;
-	result.Flags |= (HasFlags(file_attributes, FILE_ATTRIBUTE_DIRECTORY)) ? FilePropertyFlag_IsFolder : 0;
-	result.CreateTime = (dense_time)(((u64)creation_time.dwHighDateTime << 32) | (u64)creation_time.dwLowDateTime);
-	result.ModifyTime = (dense_time)(((u64)last_write_time.dwHighDateTime << 32) | (u64)last_write_time.dwLowDateTime);
+	FileProperties result = {0};
+	result.size = ((U64)file_size_high << 32) | (U64)file_size_low;
+	result.flags |= (HasFlags(file_attributes, FILE_ATTRIBUTE_DIRECTORY)) ? FilePropertyFlag_IsFolder : 0;
+	result.create_time = (DenseTime)(((U64)creation_time.dwHighDateTime << 32) | (U64)creation_time.dwLowDateTime);
+	result.modify_time = (DenseTime)(((U64)last_write_time.dwHighDateTime << 32) | (U64)last_write_time.dwLowDateTime);
 	
-	result.Access |= DataAccessFlag_Read|DataAccessFlag_Write|DataAccessFlag_Execute;
+	result.access |= DataAccessFlag_Read|DataAccessFlag_Write|DataAccessFlag_Execute;
 	if(HasFlags(file_attributes, FILE_ATTRIBUTE_READONLY)) {
-		RemoveFlags(result.Access, DataAccessFlag_Write);
+		RemoveFlags(result.access, DataAccessFlag_Write);
 	}
 	
 	return(result);
 }
 
 /////////////////////////////
-// NOTE(nate): Win32 time
+// NOTE(nate): W32 time
 
-func_ date_time
-Win32DateTimeFromSystemTime(SYSTEMTIME *time)
+func_ DateTime
+W32DateTimeFromSystemTime(SYSTEMTIME *time)
 {
-	date_time date = {
-		.Ms = time->wMilliseconds,
-		.Sec = time->wSecond,
-		.Min = time->wMinute,
-		.Hour = time->wHour,
-		.Day = (u8)(time->wDay - 1),
-		.Mon = (u8)time->wMonth,
-		.Year = time->wYear,
+	DateTime date = {
+		.ms = time->wMilliseconds,
+		.sec = time->wSecond,
+		.min = time->wMinute,
+		.hour = time->wHour,
+		.day = (U8)(time->wDay - 1),
+		.mon = (U8)time->wMonth,
+		.year = time->wYear,
 	};
 	return(date);
 }
 
 func_ SYSTEMTIME
-Win32SystemTimeFromDateTime(date_time *time)
+W32SystemTimeFromDateTime(DateTime *time)
 {
 	SYSTEMTIME result = {
-		.wMilliseconds = (WORD)time->Ms,
-		.wSecond = (WORD)time->Sec,
-		.wMinute = (WORD)time->Min,
-		.wHour = (WORD)time->Hour,
-		.wDay = (WORD)(time->Day + 1),
-		.wMonth = (WORD)time->Mon,
-		.wYear = (WORD)time->Year,
+		.wMilliseconds = (WORD)time->ms,
+		.wSecond = (WORD)time->sec,
+		.wMinute = (WORD)time->min,
+		.wHour = (WORD)time->hour,
+		.wDay = (WORD)(time->day + 1),
+		.wMonth = (WORD)time->mon,
+		.wYear = (WORD)time->year,
 	};
 	return(result);
 }
 
 
-func_ date_time
-Win32DateTimeFromFileTime(FILETIME *filetime)
+func_ DateTime
+W32DateTimeFromFileTime(FILETIME *filetime)
 {
 	SYSTEMTIME system_time = {0};
 	FileTimeToSystemTime(filetime, &system_time);
-	date_time date = Win32DateTimeFromSystemTime(&system_time);
+	DateTime date = W32DateTimeFromSystemTime(&system_time);
 	return(date);
 }
 
-func_ dense_time 
-Win32DenseTimeFromFileTime(FILETIME *filetime)
+func_ DenseTime 
+W32DenseTimeFromFileTime(FILETIME *filetime)
 {
-	date_time date = Win32DateTimeFromFileTime(filetime);
-	dense_time result = DenseTimeFromDateTime(&date);
+	DateTime date = W32DateTimeFromFileTime(filetime);
+	DenseTime result = DenseTimeFromDateTime(&date);
 	return(result);
 }
 
@@ -79,16 +79,16 @@ Win32DenseTimeFromFileTime(FILETIME *filetime)
 // NOTE(nates): Variables
 
 global_ DWORD win32_thread_context_index = 0;
-global_ u64 win32_ticks_per_second = 1;
-global_ arena *win32_perm_arena = 0;
-global_ string8_list win32_cmd_args = {0};
+global_ U64 win32_ticks_per_second = 1;
+global_ Arena *win32_perm_arena = 0;
+global_ Str8List win32_cmd_args = {0};
 
 
 /////////////////////////////////////
 // NOTE(nates): Setup
 
 func_ void 
-OS_MainInit(os_thread_context *tctx_memory, int argc, char **args)
+OS_MainInit(OS_ThreadContext *tctx_memory, int argc, char **args)
 {
 	win32_thread_context_index = TlsAlloc();
 	OS_TctxInit(tctx_memory);
@@ -96,7 +96,7 @@ OS_MainInit(os_thread_context *tctx_memory, int argc, char **args)
 	
 	LARGE_INTEGER perf_freq = {0};
 	if(QueryPerformanceFrequency(&perf_freq)) {
-		win32_ticks_per_second = ((u64)perf_freq.HighPart << 32) | ((u64)perf_freq.LowPart);
+		win32_ticks_per_second = ((U64)perf_freq.HighPart << 32) | ((U64)perf_freq.LowPart);
 	}
 	timeBeginPeriod(1);
 	
@@ -104,26 +104,26 @@ OS_MainInit(os_thread_context *tctx_memory, int argc, char **args)
 	
 	char **opl = args + argc;
 	for(char **arg = args; arg < opl; arg += 1) {
-		string8 str = Str8Cstr(*arg);
-		string8 copy = CopyStr8(win32_perm_arena, str);
-		PushStr8List(win32_perm_arena, &win32_cmd_args, copy);
+		Str8 str = Str8FromCstr(*arg);
+		Str8 copy = Str8Copy(win32_perm_arena, str);
+		Str8ListPush(win32_perm_arena, &win32_cmd_args, copy);
 	}
 }
 
 func_ void
-Win32MainInit(os_thread_context *tctx_memory,
-							HINSTANCE hInstance, HINSTANCE hPrevInstance,
-							LPSTR lpCmdLine, int nCmdShow)
+W32MainInit(OS_ThreadContext *tctx_memory,
+						HINSTANCE hInstance, HINSTANCE hPrevInstance,
+						LPSTR lpCmdLine, int nCmdShow)
 {
 	int argc = __argc;
 	char **args = __argv;
 	OS_MainInit(tctx_memory, argc, args);
 }
 
-func_ string8_list
+func_ Str8List
 OS_GetCommandLineArgs(void)
 {
-	string8_list result = win32_cmd_args;
+	Str8List result = win32_cmd_args;
 	return(result);
 }
 
@@ -155,20 +155,20 @@ OS_TctxGet(void)
 // NOTE(nates): Memory functions
 
 func_ void *
-OS_ReserveMemory(u64 size)
+OS_ReserveMemory(U64 size)
 {
 	void *result = VirtualAlloc(0, size, MEM_RESERVE, PAGE_READWRITE);
 	return(result);
 }
 
 func_ void
-OS_CommitMemory(void *ptr, u64 size_to_commit)
+OS_CommitMemory(void *ptr, U64 size_to_commit)
 {
 	VirtualAlloc(ptr, size_to_commit, MEM_COMMIT, PAGE_READWRITE);
 }
 
 func_ void
-OS_DecommitMemory(void *ptr, u64 size)
+OS_DecommitMemory(void *ptr, U64 size)
 {
 	VirtualFree(ptr, size, MEM_DECOMMIT);
 }
@@ -184,11 +184,11 @@ OS_ReleaseMemory(void *base)
 //~ NOTE(nates): File functions
 
 
-func_ string8 OS_ReadFile(arena *Arena, string8 filename)
+func_ Str8 OS_ReadFile(Arena *arena, Str8 filename)
 {
-	arena_temp scratch = GetScratch(Arena, 0);
-	string16 filename16 = Str16FromStr8(scratch.Arena, filename);
-	HANDLE file = CreateFileW((WCHAR *)filename16.M, GENERIC_READ, FILE_SHARE_READ, 
+	ArenaTemp scratch = GetScratch(arena, 0);
+	Str16 filename16 = Str16FromStr8(scratch.arena, filename);
+	HANDLE file = CreateFileW((WCHAR *)filename16.m, GENERIC_READ, FILE_SHARE_READ, 
 														0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 	ReleaseScratch(scratch);
 	
@@ -196,8 +196,8 @@ func_ string8 OS_ReadFile(arena *Arena, string8 filename)
 	void *memory = 0;
 	if(file != INVALID_HANDLE_VALUE) {
 		GetFileSizeEx(file, &file_size);
-		arena_temp restore_point = BeginArenaTemp(Arena);
-		memory = PushArray(Arena, u8, file_size.QuadPart);
+		ArenaTemp restore_point = BeginArenaTemp(arena);
+		memory = PushArray(arena, U8, file_size.QuadPart);
 		DWORD IGNORED = 0;
 		
 		if(ReadFile(file, memory, file_size.QuadPart, &IGNORED, 0) == false) {
@@ -210,25 +210,25 @@ func_ string8 OS_ReadFile(arena *Arena, string8 filename)
 		InvalidPath;
 	}
 	
-	string8 result = {memory, file_size.QuadPart};
+	Str8 result = {memory, file_size.QuadPart};
 	return(result);
 }
 
-func_ b32
-OS_WriteListFile(string8 filename, string8_list data)
+func_ B32
+OS_WriteListFile(Str8 filename, Str8List data)
 {
-	arena_temp scratch = GetScratch(0, 0);
-	string16 filename16 = Str16FromStr8(scratch.Arena, filename);
-	HANDLE file = CreateFileW((WCHAR *)filename16.M, GENERIC_WRITE, 0, 
+	ArenaTemp scratch = GetScratch(0, 0);
+	Str16 filename16 = Str16FromStr8(scratch.arena, filename);
+	HANDLE file = CreateFileW((WCHAR *)filename16.m, GENERIC_WRITE, 0, 
 														0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
 	ReleaseScratch(scratch);
 	
-	b32 result = true;
+	B32 result = true;
 	if(file != INVALID_HANDLE_VALUE) {
-		for(string8_node *node = data.First;
-				node != 0; node = node->Next) {
+		for(Str8Node *node = data.first;
+				node != 0; node = node->next) {
 			DWORD IGNORED = 0;
-			result = WriteFile(file, node->String.M, node->String.Size, &IGNORED, 0);
+			result = WriteFile(file, node->str.m, node->str.size, &IGNORED, 0);
 		}
 		CloseHandle(file);
 	}
@@ -239,32 +239,32 @@ OS_WriteListFile(string8 filename, string8_list data)
 	return(result);
 }
 
-func_ file_properties
-OS_FileProperties(string8 filename)
+func_ FileProperties
+OS_FileProperties(Str8 filename)
 {
-	arena_temp scratch = GetScratch(0, 0);
+	ArenaTemp scratch = GetScratch(0, 0);
 	
 	WIN32_FILE_ATTRIBUTE_DATA data = {0};
-	string16 filename16 = Str16FromStr8(scratch.Arena, filename);
-	GetFileAttributesExW((WCHAR *)filename16.M, 
+	Str16 filename16 = Str16FromStr8(scratch.arena, filename);
+	GetFileAttributesExW((WCHAR *)filename16.m, 
 											 GetFileExInfoStandard, 
 											 &data);
 	ReleaseScratch(scratch);
 	
-	file_properties result = Win32FilePropertiesFromFileData(data.dwFileAttributes,
-																													 data.ftCreationTime, data.ftLastWriteTime,
-																													 data.nFileSizeHigh, data.nFileSizeLow);
+	FileProperties result = W32FilePropertiesFromFileData(data.dwFileAttributes,
+																												data.ftCreationTime, data.ftLastWriteTime,
+																												data.nFileSizeHigh, data.nFileSizeLow);
 	
 	return(result);
 }
 
-func_ b32
-OS_PathExists(string8 path)
+func_ B32
+OS_PathExists(Str8 path)
 {
-	b32 result = true;
-	arena_temp scratch = GetScratch(0, 0);
-	string16 path16 = Str16FromStr8(scratch.Arena, path);
-	DWORD attributes = GetFileAttributesW((WCHAR *)path16.M);
+	B32 result = true;
+	ArenaTemp scratch = GetScratch(0, 0);
+	Str16 path16 = Str16FromStr8(scratch.arena, path);
+	DWORD attributes = GetFileAttributesW((WCHAR *)path16.m);
 	if(attributes == INVALID_FILE_ATTRIBUTES) {
 		result = false;
 	}
@@ -272,43 +272,43 @@ OS_PathExists(string8 path)
 	return(result);
 }
 
-func_ b32 
-OS_DeleteFile(string8 filename)
+func_ B32 
+OS_DeleteFile(Str8 filename)
 {
-	arena_temp scratch = GetScratch(0, 0);
-	string16 filename16 = Str16FromStr8(scratch.Arena, filename);
-	b32 result = DeleteFileW((WCHAR *)filename16.M);
+	ArenaTemp scratch = GetScratch(0, 0);
+	Str16 filename16 = Str16FromStr8(scratch.arena, filename);
+	B32 result = DeleteFileW((WCHAR *)filename16.m);
 	ReleaseScratch(scratch);
 	return(result);
 }
 
-func_ b32
-OS_RenameFile(string8 filename, string8 newname)
+func_ B32
+OS_RenameFile(Str8 filename, Str8 newname)
 {
-	arena_temp scratch = GetScratch(0, 0);
-	string16 filename16 = Str16FromStr8(scratch.Arena, filename);
-	string16 newname16 = Str16FromStr8(scratch.Arena, newname);
-	b32 result = MoveFileW((WCHAR *)filename16.M, (WCHAR *)newname16.M);
+	ArenaTemp scratch = GetScratch(0, 0);
+	Str16 filename16 = Str16FromStr8(scratch.arena, filename);
+	Str16 newname16 = Str16FromStr8(scratch.arena, newname);
+	B32 result = MoveFileW((WCHAR *)filename16.m, (WCHAR *)newname16.m);
 	ReleaseScratch(scratch);
 	return(result);
 }
 
-func_ b32 
-OS_MakeDirectory(string8 path)
+func_ B32 
+OS_MakeDirectory(Str8 path)
 {
-	arena_temp scratch = GetScratch(0, 0);
-	string16 path16 = Str16FromStr8(scratch.Arena, path);
-	b32 result = CreateDirectoryW((WCHAR *)path16.M, 0);
+	ArenaTemp scratch = GetScratch(0, 0);
+	Str16 path16 = Str16FromStr8(scratch.arena, path);
+	B32 result = CreateDirectoryW((WCHAR *)path16.m, 0);
 	ReleaseScratch(scratch);
 	return(result);
 }
 
-func_ b32 
-OS_DeleteDirectory(string8 path)
+func_ B32 
+OS_DeleteDirectory(Str8 path)
 {
-	arena_temp scratch = GetScratch(0, 0);
-	string16 path16 = Str16FromStr8(scratch.Arena, path);
-	b32 result = RemoveDirectoryW((WCHAR *)path16.M);
+	ArenaTemp scratch = GetScratch(0, 0);
+	Str16 path16 = Str16FromStr8(scratch.arena, path);
+	B32 result = RemoveDirectoryW((WCHAR *)path16.m);
 	ReleaseScratch(scratch);
 	return(result);
 }
@@ -317,54 +317,54 @@ OS_DeleteDirectory(string8 path)
 //////////////////////////////////////////////
 // NOTE(nates): File iteration functions
 
-func_ os_fileiter
-OS_FileIterInit(string8 path)
+func_ OS_FileIter
+OS_FileIterInit(Str8 path)
 {
-	os_fileiter result = {0};
+	OS_FileIter result = {0};
 	
-	string8_node nodes[2] = {0};
-	string8_list list = {0};
+	Str8Node nodes[2] = {0};
+	Str8List list = {0};
 	PushExplicitStr8List(&list, path, nodes);
 	PushExplicitStr8List(&list, Str8Lit("\\*"), nodes + 1);
-	arena_temp scratch = GetScratch(0, 0);
-	string8 full_path = JoinStr8List(scratch.Arena, &list);
+	ArenaTemp scratch = GetScratch(0, 0);
+	Str8 full_path = Str8ListJoin(scratch.arena, &list);
 	// TODO(nates): Consider taking a string list for str16s
-	string16 path16 = Str16FromStr8(scratch.Arena, full_path);
-	win32_fileiter *win32_iter = (win32_fileiter *)&result;
+	Str16 path16 = Str16FromStr8(scratch.arena, full_path);
+	W32_FileIter *win32_iter = (W32_FileIter *)&result;
 	MemoryZeroStruct(&result);
-	win32_iter->Handle = FindFirstFileW((WCHAR *)path16.M, &win32_iter->FindData);
+	win32_iter->handle = FindFirstFileW((WCHAR *)path16.m, &win32_iter->find_data);
 	ReleaseScratch(scratch);
 	return(result);
 }
 
-func_ b32
-OS_FileIterNext(arena *Arena, os_fileiter *iter,
-								string8 *name_out, file_properties *prop_out)
+func_ B32
+OS_FileIterNext(Arena *arena, OS_FileIter *iter,
+								Str8 *name_out, FileProperties *prop_out)
 {
-	b32 result = false;
-	win32_fileiter *win32_iter = (win32_fileiter *)iter;
-	if(win32_iter->Handle != 0 &&
-		 win32_iter->Handle != INVALID_HANDLE_VALUE) {
-		for(;win32_iter->Done == false;) {
-			WCHAR *filename = win32_iter->FindData.cFileName;
-			b32 is_dot = (filename[0] == '.' && filename[1] == 0);
-			b32 is_dotdot = (filename[0] == '.' && filename[1] == '.' && filename[2] == 0);
+	B32 result = false;
+	W32_FileIter *win32_iter = (W32_FileIter *)iter;
+	if(win32_iter->handle != 0 &&
+		 win32_iter->handle != INVALID_HANDLE_VALUE) {
+		for(;win32_iter->done == false;) {
+			WCHAR *filename = win32_iter->find_data.cFileName;
+			B32 is_dot = (filename[0] == '.' && filename[1] == 0);
+			B32 is_dotdot = (filename[0] == '.' && filename[1] == '.' && filename[2] == 0);
 			
-			b32 emit = (!is_dot && !is_dotdot);
+			B32 emit = (!is_dot && !is_dotdot);
 			WIN32_FIND_DATAW data = {0};
 			if(emit) {
-				MemoryCopyStruct(&data, &win32_iter->FindData);
+				MemoryCopyStruct(&data, &win32_iter->find_data);
 			}
 			
-			if(!FindNextFileW(win32_iter->Handle, &win32_iter->FindData)) {
-				win32_iter->Done = true;
+			if(!FindNextFileW(win32_iter->handle, &win32_iter->find_data)) {
+				win32_iter->done = true;
 			}
 			
 			if(emit) {
-				*name_out = Str8FromStr16(Arena, Str16Cstr((u16 *)data.cFileName));
-				*prop_out = Win32FilePropertiesFromFileData(data.dwFileAttributes,
-																										data.ftCreationTime, data.ftLastWriteTime,
-																										data.nFileSizeHigh, data.nFileSizeLow);
+				*name_out = Str8FromStr16(arena, Str16FromCstr((U16 *)data.cFileName));
+				*prop_out = W32FilePropertiesFromFileData(data.dwFileAttributes,
+																									data.ftCreationTime, data.ftLastWriteTime,
+																									data.nFileSizeHigh, data.nFileSizeLow);
 				result = true;
 				break;
 			}
@@ -374,91 +374,91 @@ OS_FileIterNext(arena *Arena, os_fileiter *iter,
 }
 
 func_ void 
-OS_FileIterEnd(os_fileiter *iter)
+OS_FileIterEnd(OS_FileIter *iter)
 {
-	win32_fileiter *win32_iter = (win32_fileiter *)iter;
-	if(win32_iter->Handle != 0 &&
-		 win32_iter->Handle != INVALID_HANDLE_VALUE) {
-		FindClose(win32_iter->Handle);
+	W32_FileIter *win32_iter = (W32_FileIter *)iter;
+	if(win32_iter->handle != 0 &&
+		 win32_iter->handle != INVALID_HANDLE_VALUE) {
+		FindClose(win32_iter->handle);
 	}
 }
 
 // NOTE(nates): System paths
 
-func_ string8 OS_SystemPath(arena *Arena, os_system_path path)
+func_ Str8 OS_GetSystemPath(Arena *arena, OS_SystemPath path)
 {
-	string8 result = {0};
+	Str8 result = {0};
 	switch(path) {
 		case OS_SystemPath_CurrentDir: {
 			DWORD buffer_size = GetCurrentDirectory(0, 0);
-			arena_temp scratch = GetScratch(Arena, 0);
-			u16 *buffer = PushArray(scratch.Arena, u16, buffer_size);
+			ArenaTemp scratch = GetScratch(arena, 0);
+			U16 *buffer = PushArray(scratch.arena, U16, buffer_size);
 			GetCurrentDirectoryW(buffer_size, buffer);
-			result = Str8FromStr16(Arena, Str16(buffer, buffer_size - 1));
+			result = Str8FromStr16(arena, MStr16(buffer, buffer_size - 1));
 			ReleaseScratch(scratch);
 		} break;
 		case OS_SystemPath_ExeDir: {
-			arena_temp scratch = GetScratch(Arena, 0);
-			arena_temp restore_point = BeginArenaTemp(scratch.Arena);
+			ArenaTemp scratch = GetScratch(arena, 0);
+			ArenaTemp restore_point = BeginArenaTemp(scratch.arena);
 			DWORD string_length = 0;
-			u16 *temp_buffer = 0;
-			u32 size = 512;
+			U16 *temp_buffer = 0;
+			U32 size = 512;
 			for(;;) {
-				temp_buffer = PushArray(restore_point.Arena, u16, size);
+				temp_buffer = PushArray(restore_point.arena, U16, size);
 				string_length = GetModuleFileNameW(0, temp_buffer, size);
 				DWORD last_error = GetLastError();
 				if(last_error != ERROR_INSUFFICIENT_BUFFER) {
 					break;
 				}
 				size += 512;
-				end_Arena_temp(restore_point);
+				end_arena_temp(restore_point);
 			}
 			
-			string8 temp_exefile = Str8FromStr16(restore_point.Arena, Str16(temp_buffer, string_length));
-			string8 actual_path = ChopAtLastSlashStr8(temp_exefile);
-			string_length = actual_path.Size;
-			EndArena_temp(restore_point);
+			Str8 temp_exefile = Str8FromStr16(restore_point.arena, MStr16(temp_buffer, string_length));
+			Str8 actual_path = ChopAtLastSlashStr8(temp_exefile);
+			string_length = actual_path.size;
+			Endarena_temp(restore_point);
 			
-			u16 *buffer = PushArray(scratch.Arena, u16, string_length + 1);
+			U16 *buffer = PushArray(scratch.arena, U16, string_length + 1);
 			GetModuleFileNameW(0, buffer, string_length + 1);
-			result = Str8FromStr16(Arena, Str16(buffer, string_length - 1));
+			result = Str8FromStr16(arena, MStr16(buffer, string_length - 1));
 			ReleaseScratch(scratch);
 		} break;
 		
 		case OS_SystemPath_UserDir: {
-			arena_temp scratch = GetScratch(Arena, 0);
+			ArenaTemp scratch = GetScratch(arena, 0);
 			
 			// NOTE(nates): Get the profiles directory
-			u32 profile_dir_buffer_size = 0;
+			U32 profile_dir_buffer_size = 0;
 			GetProfilesDirectoryW(0, &profile_dir_buffer_size);
-			u16 *profile_dir_buffer = PushArray(scratch.Arena, u16, profile_dir_buffer_size);
+			U16 *profile_dir_buffer = PushArray(scratch.arena, U16, profile_dir_buffer_size);
 			GetProfilesDirectoryW(profile_dir_buffer, &profile_dir_buffer_size);
-			string8 profile_dir = Str8FromStr16(scratch.Arena, Str16(profile_dir_buffer, profile_dir_buffer_size - 1));
+			Str8 profile_dir = Str8FromStr16(scratch.arena, MStr16(profile_dir_buffer, profile_dir_buffer_size - 1));
 			
 			// NOTE(nates): Get the current user's name
-			u32 user_name_buffer_size = 0;
+			U32 user_name_buffer_size = 0;
 			GetUserNameW(0, &user_name_buffer_size);
-			u16 *user_name_buffer = PushArray(scratch.Arena, u16, user_name_buffer_size);
+			U16 *user_name_buffer = PushArray(scratch.arena, U16, user_name_buffer_size);
 			GetUserNameW(user_name_buffer, &user_name_buffer_size);
-			string8 user_name = Str8FromStr16(scratch.Arena, Str16(user_name_buffer, user_name_buffer_size - 1));
+			Str8 user_name = Str8FromStr16(scratch.arena, MStr16(user_name_buffer, user_name_buffer_size - 1));
 			
-			string8_node nodes[3] = {0};
-			string8_list list = {0};
+			Str8Node nodes[3] = {0};
+			Str8List list = {0};
 			PushExplicitStr8List(&list, profile_dir, nodes + 0);
 			PushExplicitStr8List(&list, Str8Lit("\\"), nodes + 1);
 			PushExplicitStr8List(&list, user_name, nodes + 2);
-			result = JoinStr8List(Arena, &list);
+			result = Str8ListJoin(arena, &list);
 			
 			ReleaseScratch(scratch);
 		} break;
 		
 		case OS_SystemPath_TempDir: {
-			arena_temp scratch = GetScratch(Arena, 0);
-			u32 buffer_size = 0;
+			ArenaTemp scratch = GetScratch(arena, 0);
+			U32 buffer_size = 0;
 			buffer_size = GetTempPathW(0, 0);
-			u16 *buffer = PushArray(scratch.Arena, u16, buffer_size);
+			U16 *buffer = PushArray(scratch.arena, U16, buffer_size);
 			GetTempPathW(buffer_size, buffer);
-			result = Str8FromStr16(Arena, Str16(buffer, buffer_size - 2));
+			result = Str8FromStr16(arena, MStr16(buffer, buffer_size - 2));
 			
 			ReleaseScratch(scratch);
 		} break;
@@ -473,65 +473,65 @@ func_ string8 OS_SystemPath(arena *Arena, os_system_path path)
 /////////////////////////////////////
 // NOTE(nates): OS Time functions
 
-func_ date_time
+func_ DateTime
 OS_GetUniversalTime(void)
 {
 	SYSTEMTIME system_time = {0};
 	GetSystemTime(&system_time);
-	date_time result = Win32DateTimeFromSystemTime(&system_time);
+	DateTime result = W32DateTimeFromSystemTime(&system_time);
 	return(result);
 }
 
-func_ date_time
-OS_GetLocalTimeFromUniversalTime(date_time *universal)
+func_ DateTime
+OS_GetLocalTimeFromUniversalTime(DateTime *universal)
 {
-	SYSTEMTIME universal_system_time = Win32SystemTimeFromDateTime(universal);
+	SYSTEMTIME universal_system_time = W32SystemTimeFromDateTime(universal);
 	FILETIME universal_file_time = {0};
 	SystemTimeToFileTime(&universal_system_time, &universal_file_time);
 	FILETIME local_file_time = {0};
 	FileTimeToLocalFileTime(&universal_file_time, &local_file_time);
-	date_time result = Win32DateTimeFromFileTime(&local_file_time);
+	DateTime result = W32DateTimeFromFileTime(&local_file_time);
 	return(result);
 }
 
-func_ date_time
-OS_UniversalTimeFromLocalTime(date_time *local_time)
+func_ DateTime
+OS_UniversalTimeFromLocalTime(DateTime *local_time)
 {
-	SYSTEMTIME local_system_time = Win32SystemTimeFromDateTime(local_time);
+	SYSTEMTIME local_system_time = W32SystemTimeFromDateTime(local_time);
 	FILETIME local_file_time = {0};
 	SystemTimeToFileTime(&local_system_time, &local_file_time);
 	FILETIME universal_file_time = {0};
 	LocalFileTimeToFileTime(&local_file_time, &universal_file_time);
-	date_time result = Win32DateTimeFromFileTime(&universal_file_time);
+	DateTime result = W32DateTimeFromFileTime(&universal_file_time);
 	return(result);
 }
 
-func_ u64
+func_ U64
 OS_GetMicroSeconds(void)
 {
-	u64 result = 0;
+	U64 result = 0;
 	LARGE_INTEGER time = {0};
 	if(QueryPerformanceCounter(&time)) {
-		u64 ticks = ((u64)time.HighPart << 32) | ((u64)time.LowPart);
+		U64 ticks = ((U64)time.HighPart << 32) | ((U64)time.LowPart);
 		result = (ticks/win32_ticks_per_second)*Million(1);
 	}
 	return(result);
 }
 
-func_ u64 
+func_ U64 
 OS_GetMilliSeconds(void)
 {
-	u64 result = 0;
+	U64 result = 0;
 	LARGE_INTEGER time = {0};
 	if(QueryPerformanceCounter(&time)) {
-		u64 ticks = ((u64)time.HighPart << 32) | ((u64)time.LowPart);
+		U64 ticks = ((U64)time.HighPart << 32) | ((U64)time.LowPart);
 		result = (ticks/win32_ticks_per_second)*Thousand(1);
 	}
 	return(result);
 }
 
 func_ void 
-OS_SleepMS(u64 ms)
+OS_SleepMS(U64 ms)
 {
 	Sleep(ms);
 }
@@ -540,39 +540,39 @@ OS_SleepMS(u64 ms)
 // NOTE(nates): Dlls
 
 
-func_ os_library 
-OS_LoadLib(string8 filename)
+func_ OS_Library 
+OS_LoadLib(Str8 filename)
 {
-	arena_temp scratch = GetScratch(0, 0);
+	ArenaTemp scratch = GetScratch(0, 0);
 	
-	string16 filename16 = Str16FromStr8(scratch.Arena, filename);
-	HMODULE library = LoadLibraryW((WCHAR *)filename16.M);
-	file_properties properties = OS_FileProperties(filename);
-	os_library result = {0};
-	result.Handle = (os_handle)library;
-	result.LastWriteTime = properties.ModifyTime;
+	Str16 filename16 = Str16FromStr8(scratch.arena, filename);
+	HMODULE library = LoadLibraryW((WCHAR *)filename16.m);
+	FileProperties properties = OS_FileProperties(filename);
+	OS_Library result = {0};
+	result.handle = (OS_Handle)library;
+	result.last_write_time = properties.modify_time;
 	ReleaseScratch(scratch);
 	return(result);
 }
 
-func_ b32
-OS_CloseLib(os_library library)
+func_ B32
+OS_CloseLib(OS_Library library)
 {
-	b32 result = FreeLibrary((HMODULE)library.Handle);
+	B32 result = FreeLibrary((HMODULE)library.handle);
 	return(result);
 }
 
 func_ void *     
-OS_GetLibProc_(os_library library, string8 function_name)
+OS_GetLibProc_(OS_Library library, Str8 function_name)
 {
-	void *function = GetProcAddress((HMODULE)library.Handle, function_name.M);
+	void *function = GetProcAddress((HMODULE)library.handle, function_name.m);
 	return(function);
 }
 
 ////////////////////////////////////
 // NOTE(nates): Entropy
 
-func_ void OS_GetEntropy(u64 *seed)
+func_ void OS_GetEntropy(U64 *seed)
 {
 	HCRYPTPROV crpyt_prov = 0;
 	CryptAcquireContextW(&crpyt_prov, 0, 0,  PROV_DSS, CRYPT_VERIFYCONTEXT);

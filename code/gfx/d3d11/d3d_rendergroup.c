@@ -1,307 +1,307 @@
 
 func_ void
-PushVertexV3(render_group *RenderGroup, v3 vertex)
+PushVertexV3(R_Group *render_group, V3 vertex)
 {
-	v3 *data = PushArray(RenderGroup->VArena, v3, 1);
+	V3 *data = PushArray(render_group->varena, V3, 1);
 	data[0] = vertex;
-	RenderGroup->VCount++;
+	render_group->vcount++;
 }
 
 func_ void
-PushVertexV3C3(render_group *RenderGroup, v3 vertex, v3 color)
+PushVertexV3C3(R_Group *render_group, V3 vertex, V3 color)
 {
-	v3 *data = PushArray(RenderGroup->VArena, v3, 2);
+	V3 *data = PushArray(render_group->varena, V3, 2);
 	data[0] = vertex;
 	data[1] = color;
-	RenderGroup->VCount++;
+	render_group->vcount++;
 }
 
 func_ void
-PushVertexV3T2(render_group *RenderGroup, v3 vertex, v2 tex_coord)
+PushVertexV3T2(R_Group *render_group, V3 vertex, V2 tex_coord)
 {
-	v3 *v = PushArray(RenderGroup->VArena, v3, 1);
+	V3 *v = PushArray(render_group->varena, V3, 1);
 	*v = vertex;
-	v2 *t = PushArray(RenderGroup->VArena, v2, 1);
+	V2 *t = PushArray(render_group->varena, V2, 1);
 	*t = tex_coord;
-	RenderGroup->VCount++;
+	render_group->vcount++;
 }
 
 func_ void
-PushIndex(render_group *RenderGroup, u32 index)
+PushIndex(R_Group *render_group, U32 index)
 {
-	u32 *data = PushArray(RenderGroup->IArena, u32, 1);
+	U32 *data = PushArray(render_group->iarena, U32, 1);
 	*data = index;
-	RenderGroup->ICount++;
+	render_group->icount++;
 }
 
 
 func_ void
-PushVTriangleV3(render_group *RenderGroup, v3 p0, v3 p1, v3 p2)
+PushVTriangleV3(R_Group *render_group, V3 p0, V3 p1, V3 p2)
 {
-	PushVertexV3(RenderGroup, p0);
-	PushVertexV3(RenderGroup, p1);
-	PushVertexV3(RenderGroup, p2);
+	PushVertexV3(render_group, p0);
+	PushVertexV3(render_group, p1);
+	PushVertexV3(render_group, p2);
 }
 
 func_ void 
-PushVTriangleV3C3(render_group *RenderGroup, v3 p0, v3 p1, v3 p2, v3 color)
+PushVTriangleV3C3(R_Group *render_group, V3 p0, V3 p1, V3 p2, V3 color)
 {
-	PushVertexV3C3(RenderGroup, p0, color);
-	PushVertexV3C3(RenderGroup, p1, color);
-	PushVertexV3C3(RenderGroup, p2, color);
+	PushVertexV3C3(render_group, p0, color);
+	PushVertexV3C3(render_group, p1, color);
+	PushVertexV3C3(render_group, p2, color);
 }
 
-func_ void PushVTriangleV3T2(render_group *RenderGroup, v3 p0, v3 p1, v3 p2, 
-														 v2 t0, v2 t1, v2 t2)
+func_ void PushVTriangleV3T2(R_Group *render_group, V3 p0, V3 p1, V3 p2, 
+														 V2 t0, V2 t1, V2 t2)
 {
-	PushVertexV3T2(RenderGroup, p0, t0);
-	PushVertexV3T2(RenderGroup, p1, t1);
-	PushVertexV3T2(RenderGroup, p2, t2);
+	PushVertexV3T2(render_group, p0, t0);
+	PushVertexV3T2(render_group, p1, t1);
+	PushVertexV3T2(render_group, p2, t2);
 }
 
 
 func_ void
-PushITriangleV3(render_group *RenderGroup, v3 p0, v3 p1, v3 p2)
+PushITriangleV3(R_Group *render_group, V3 p0, V3 p1, V3 p2)
 {
-	PushVertexV3(RenderGroup, p0);
-	PushVertexV3(RenderGroup, p1);
-	PushVertexV3(RenderGroup, p2);
+	PushVertexV3(render_group, p0);
+	PushVertexV3(render_group, p1);
+	PushVertexV3(render_group, p2);
 	
-	PushIndex(RenderGroup, RenderGroup->ICount);
-	PushIndex(RenderGroup, RenderGroup->ICount);
-	PushIndex(RenderGroup, RenderGroup->ICount);
+	PushIndex(render_group, render_group->icount);
+	PushIndex(render_group, render_group->icount);
+	PushIndex(render_group, render_group->icount);
 }
 
 func_ void 
-PushITriangleV3C3(render_group *RenderGroup, v3 p0, v3 p1, v3 p2, v3 color)
+PushITriangleV3C3(R_Group *render_group, V3 p0, V3 p1, V3 p2, V3 color)
 {
-	push_vertex_v3c3(RenderGroup, p0, color);
-	push_vertex_v3c3(RenderGroup, p1, color);
-	push_vertex_v3c3(RenderGroup, p2, color);
+	push_vertex_V3c3(render_group, p0, color);
+	push_vertex_V3c3(render_group, p1, color);
+	push_vertex_V3c3(render_group, p2, color);
 	
-	push_index(RenderGroup, RenderGroup->ICount);
-	push_index(RenderGroup, RenderGroup->ICount);
-	push_index(RenderGroup, RenderGroup->ICount);
+	push_index(render_group, render_group->icount);
+	push_index(render_group, render_group->icount);
+	push_index(render_group, render_group->icount);
 }
 
-func_ void PushITriangleV3T2(render_group *RenderGroup, v3 p0, v3 p1, v3 p2, 
-														 v2 t0, v2 t1, v2 t2)
+func_ void PushITriangleV3T2(R_Group *render_group, V3 p0, V3 p1, V3 p2, 
+														 V2 t0, V2 t1, V2 t2)
 {
-	push_vertex_v3t2(RenderGroup, p0, t0);
-	push_vertex_v3t2(RenderGroup, p1, t1);
-	push_vertex_v3t2(RenderGroup, p2, t2);
+	push_vertex_V3t2(render_group, p0, t0);
+	push_vertex_V3t2(render_group, p1, t1);
+	push_vertex_V3t2(render_group, p2, t2);
 	
-	push_index(RenderGroup, RenderGroup->ICount);
-	push_index(RenderGroup, RenderGroup->ICount);
-	push_index(RenderGroup, RenderGroup->ICount);
+	push_index(render_group, render_group->icount);
+	push_index(render_group, render_group->icount);
+	push_index(render_group, render_group->icount);
 }
 
-#define PushUniformData(RenderGroup, data) PushUniformData_(RenderGroup, &data, sizeof(data))
+#define PushUniformData(render_group, data) PushUniformData_(render_group, &data, sizeof(data))
 func_ void
-PushUniformData_(render_group *RenderGroup, 
-								 void *data, u32 data_size)
+PushUniformData_(R_Group *render_group, 
+								 void *data, U32 data_size)
 {
-	void *dest = PushArray(RenderGroup->UArena, u8, data_size);
+	void *dest = PushArray(render_group->uarena, U8, data_size);
 	MemoryCopy(dest, data, data_size);
 }
 
-func_ void InitRenderGroupBufferEntries(u64 vbuffer_size, u64 ibuffer_size, u64 ubuffer_size)
+func_ void InitRenderGroupBufferEntries(U64 vbuffer_size, U64 ibuffer_size, U64 ubuffer_size)
 {
-	for(u32 i = 0; i < MAX_RENDERGROUP_BUFFER_ENTRIES; ++i)
+	for(U32 i = 0; i < MAX_RENDERGROUP_BUFFER_ENTRIES; ++i)
 	{
-		r_buffer vbuffer = Gfx_MakeDynamicVBuffer(vbuffer_size);
-		r_buffer ibuffer = Gfx_MakeDynamicIBuffer(ibuffer_size);
-		r_buffer ubuffer = Gfx_MakeDynamicUBuffer(ubuffer_size);
+		R_Buffer vbuffer = Gfx_MakeDynamicVBuffer(vbuffer_size);
+		R_Buffer ibuffer = Gfx_MakeDynamicIBuffer(ibuffer_size);
+		R_Buffer ubuffer = Gfx_MakeDynamicUBuffer(ubuffer_size);
 		
-		GRenderGroupVBufferEntries[i].Buffer = vbuffer;
-		GRenderGroupVBufferEntries[i].BeingUsed = false;
-		GRenderGroupIBufferEntries[i].Buffer = ibuffer;
-		GRenderGroupIBufferEntries[i].BeingUsed = false;
-		GRenderGroupUBufferEntries[i].Buffer = ubuffer;
-		GRenderGroupIBufferEntries[i].BeingUsed = false;
+		g_rgroup_vbuffer_entries[i].buffer = vbuffer;
+		g_rgroup_vbuffer_entries[i].being_used = false;
+		g_rgroup_ibuffer_entries[i].buffer = ibuffer;
+		g_rgroup_ibuffer_entries[i].being_used = false;
+		g_rgroup_ubuffer_entries[i].buffer = ubuffer;
+		g_rgroup_ubuffer_entries[i].being_used = false;
 	}
 }
 
-func_ void PushRenderInfo(render_group *RenderGroup, r_info info)
+func_ void PushRenderInfo(R_Group *render_group, R_Info info)
 {
-	Assert(info.VShader != 0 && info.FShader != 0);
-	Assert(info.Layout.Handle != 0 && info.Layout.Stride != 0);
-	RenderGroup->Info = info;
+	Assert(info.vshader != 0 && info.fshader != 0);
+	Assert(info.layout.handle != 0 && info.layout.stride != 0);
+	render_group->info = info;
 }
 
-func_ void PushVertexBuffer(render_group *RenderGroup)
+func_ void PushVertexBuffer(R_Group *render_group)
 {
-	r_buffer_entry *entry = 0;
-	for(u32 i = 0; i < MAX_RENDERGROUP_BUFFER_ENTRIES; ++i)
+	R_BufferEntry *entry = 0;
+	for(U32 i = 0; i < MAX_RENDERGROUP_BUFFER_ENTRIES; ++i)
 	{
-		r_buffer_entry *current = GRenderGroupVBufferEntries + i;
-		if(current->BeingUsed == false) {
+		R_BufferEntry *current = g_rgroup_vbuffer_entries + i;
+		if(current->being_used == false) {
 			entry = current;
-			Assert(entry->Buffer.Handle != 0);
+			Assert(entry->buffer.handle != 0);
 			break;
 		}
 	}
 	if(entry) {
-		RenderGroup->VEntry = entry;
+		render_group->ventry = entry;
 	}
 	else {
 		InvalidPath;
 	}
 	
-	RenderGroup->VArena = ArenaAlloc(entry->Buffer.Size);
-	RenderGroup->VArena->Align = 1;
+	render_group->varena = ArenaAlloc(entry->buffer.size);
+	render_group->varena->align = 1;
 }
 
-func_ void PushIndexBuffer(render_group *RenderGroup)
+func_ void PushIndexBuffer(R_Group *render_group)
 {
-	r_buffer_entry *entry = 0;
-	for(u32 i = 0; i < MAX_RENDERGROUP_BUFFER_ENTRIES; ++i)
+	R_BufferEntry *entry = 0;
+	for(U32 i = 0; i < MAX_RENDERGROUP_BUFFER_ENTRIES; ++i)
 	{
-		r_buffer_entry *current = GRenderGroupIBufferEntries + i;
-		if(current->BeingUsed == false) {
+		R_BufferEntry *current = g_rgroup_ibuffer_entries + i;
+		if(current->being_used == false) {
 			entry = current;
-			Assert(entry->Buffer.Handle != 0);
+			Assert(entry->buffer.handle != 0);
 			break;
 		}
 	}
 	
 	if(entry) {
-		RenderGroup->IEntry = entry;
+		render_group->ientry = entry;
 	}
 	else {
 		InvalidPath;
 	}
-	RenderGroup->IndexDrawingEnabled = true;
+	render_group->index_drawing_enabled = true;
 	
-	RenderGroup->IArena = ArenaAlloc(entry->Buffer.Size);
-	RenderGroup->IArena->Align = 1;
+	render_group->iarena = ArenaAlloc(entry->buffer.size);
+	render_group->iarena->align = 1;
 }
 
-func_ void PushUniformBuffer(render_group *RenderGroup)
+func_ void PushUniformBuffer(R_Group *render_group)
 {
-	r_buffer_entry *entry = 0;
-	for(u32 i = 0; i < MAX_RENDERGROUP_BUFFER_ENTRIES; ++i)
+	R_BufferEntry *entry = 0;
+	for(U32 i = 0; i < MAX_RENDERGROUP_BUFFER_ENTRIES; ++i)
 	{
-		r_buffer_entry *current = GRenderGroupUBufferEntries + i;
-		if(current->BeingUsed == false) {
+		R_BufferEntry *current = g_rgroup_ubuffer_entries + i;
+		if(current->being_used == false) {
 			entry = current;
-			Assert(entry->Buffer.Handle != 0);
+			Assert(entry->buffer.handle != 0);
 			break;
 		}
 	}
 	
 	if(entry) {
-		RenderGroup->UEntry = entry;
+		render_group->uentry = entry;
 	}
 	else {
 		InvalidPath;
 	}
 	
-	RenderGroup->CBufferEnabled = true;
-	RenderGroup->UArena = ArenaAlloc(entry->Buffer.Size);
-	RenderGroup->UArena->Align = 1;
+	render_group->cbuffer_enabled = true;
+	render_group->uarena = ArenaAlloc(entry->buffer.size);
+	render_group->uarena->align = 1;
 }
 
 
-func_ void PushClipRect(render_group *RenderGroup, rng2 rect)
+func_ void PushClipRect(R_Group *render_group, R2 rect)
 {
-	Assert(RenderGroup->ClipRectEnabled == false);
-	RenderGroup->ClipRectEnabled = true;
-	RenderGroup->ClipRect = rect;
+	Assert(render_group->cliprect_enabled == false);
+	render_group->cliprect_enabled = true;
+	render_group->cliprect = rect;
 }
 
 func_ void
-RenderGroupToOutput(render_group *RenderGroup, 
-										r_handle viewport,
-										r_handle texture)
+render_groupToOutput(R_Group *render_group, 
+										 R_Handle viewport,
+										 R_Handle texture)
 {
-	void *vmemory = ArenaStart(RenderGroup->VArena);
-	u64 vmemory_size = ArenaSize(RenderGroup->VArena);
-	Gfx_SetVertexBufferData(RenderGroup->VEntry->Buffer, vmemory, vmemory_size);
-	RenderGroup->VEntry->BeingUsed = false;
+	void *vmemory = ArenaStart(render_group->varena);
+	U64 vmemory_size = ArenaSize(render_group->varena);
+	Gfx_SetVertexBufferData(render_group->ventry->buffer, vmemory, vmemory_size);
+	render_group->ventry->being_used = false;
 	
-	if(RenderGroup->IndexDrawingEnabled) {
-		void *imemory = ArenaStart(RenderGroup->IArena);
-		u64 imemory_size = ArenaSize(RenderGroup->IArena);
-		Gfx_SetIndexBufferData(RenderGroup->IEntry->Buffer, imemory, imemory_size);
-		RenderGroup->IEntry->BeingUsed = false;
+	if(render_group->index_drawing_enabled) {
+		void *imemory = ArenaStart(render_group->iarena);
+		U64 imemory_size = ArenaSize(render_group->iarena);
+		Gfx_SetIndexBufferData(render_group->ientry->buffer, imemory, imemory_size);
+		render_group->ientry->being_used = false;
 	}
 	
-	if(RenderGroup->CBufferEnabled) {
-		void *umemory = ArenaStart(RenderGroup->UArena);
-		u64 umemory_size = ArenaSize(RenderGroup->UArena);
-		Gfx_SetUniformBufferData(RenderGroup->UEntry->Buffer, umemory, umemory_size);
-		RenderGroup->UEntry->BeingUsed = false;
+	if(render_group->cbuffer_enabled) {
+		void *umemory = ArenaStart(render_group->uarena);
+		U64 umemory_size = ArenaSize(render_group->uarena);
+		Gfx_SetUniformBufferData(render_group->uentry->buffer, umemory, umemory_size);
+		render_group->uentry->being_used = false;
 	}
 	
 	Gfx_BindViewport(viewport);
 	Gfx_SetRenderTarget();
 	
 	Gfx_SetRenderMode(R_Mode_TriangleList);
-	Gfx_BindInputLayout(RenderGroup->Info.Layout);
+	Gfx_BindInputLayout(render_group->info.layout);
 	
-	ID3D11DeviceContext1_ClearDepthStencilView(GRenderContext, GDepthBufferView, D3D11_CLEAR_DEPTH, 1.f, 0);
+	ID3D11DeviceContext1_ClearDepthStencilView(g_render_context, g_depth_buffer_view, D3D11_CLEAR_DEPTH, 1.f, 0);
 	
-	if(RenderGroup->Info.TextureContext) {
+	if(render_group->info.texture_context) {
 		Assert(texture);
-		texture_context *TextureContext = (texture_context*)RenderGroup->Info.TextureContext;
+		Texture_Context *texture_context = (Texture_Context*)render_group->info.texture_context;
 		
-		if(RenderGroup->WireFrameEnabled) {
-			ID3D11DeviceContext1_RSSetState(GRenderContext, (ID3D11RasterizerState *)GRasterizerStateWire);
+		if(render_group->wireframe_enabled) {
+			ID3D11DeviceContext1_RSSetState(g_render_context, (ID3D11RasterizerState *)g_raster_state_wire);
 		}
 		else {
-			ID3D11DeviceContext1_RSSetState(GRenderContext, (ID3D11RasterizerState *)GRasterizerStateFill);
+			ID3D11DeviceContext1_RSSetState(g_render_context, (ID3D11RasterizerState *)g_raster_state_fill);
 		}
 		
-		D3D11_RECT full_rect = {0, 0, GDepthBufferDesc.Width, GDepthBufferDesc.Height};
-		if(RenderGroup->ClipRectEnabled) {
-			v2i Min = V2I((s32)RenderGroup->ClipRect.x0, (s32)RenderGroup->ClipRect.y0);
-			v2i Max = V2I((s32)RenderGroup->ClipRect.x1, (s32)RenderGroup->ClipRect.y1);
-			rng2i rect = {
-				.Min = Min,
-				.Max = Max,
+		D3D11_RECT full_rect = {0, 0, g_depth_buffer_desc.Width, g_depth_buffer_desc.Height};
+		if(render_group->cliprect_enabled) {
+			V2I min = MV2I((S32)render_group->cliprect.x0, (S32)render_group->cliprect.y0);
+			V2I max = MV2I((S32)render_group->cliprect.x1, (S32)render_group->cliprect.y1);
+			R2I rect = {
+				.min = min,
+				.max = max,
 			};
 			full_rect = (D3D11_RECT){rect.x0, rect.y0, rect.x1, rect.y1};
 		}
-		ID3D11DeviceContext1_RSSetScissorRects(GRenderContext, 1, &full_rect);
+		ID3D11DeviceContext1_RSSetScissorRects(g_render_context, 1, &full_rect);
 		
-		ID3D11DeviceContext1_PSSetShaderResources(GRenderContext, 0, 1, (ID3D11ShaderResourceView **)&texture);
-		ID3D11DeviceContext1_PSSetSamplers(GRenderContext, 0, 1, &TextureContext->SamplerState);
+		ID3D11DeviceContext1_PSSetShaderResources(g_render_context, 0, 1, (ID3D11ShaderResourceView **)&texture);
+		ID3D11DeviceContext1_PSSetSamplers(g_render_context, 0, 1, &texture_context->sampler_state);
 		
-		ID3D11DeviceContext1_OMSetDepthStencilState(GRenderContext, TextureContext->DepthStencilState, 0);
-		ID3D11DeviceContext1_OMSetBlendState(GRenderContext, TextureContext->BlendState, 0, 0xffffffff);
+		ID3D11DeviceContext1_OMSetDepthStencilState(g_render_context, texture_context->depth_stencil_state, 0);
+		ID3D11DeviceContext1_OMSetBlendState(g_render_context, texture_context->blend_state, 0, 0xffffffff);
 	}
 	else {
 		Assert(texture == 0);
 	}
 	
-	Gfx_BindVertexBuffer(RenderGroup->VEntry->Buffer, RenderGroup->Info.Layout.Stride, 0);
+	Gfx_BindVertexBuffer(render_group->ventry->buffer, render_group->info.layout.stride, 0);
 	
-	if(RenderGroup->IndexDrawingEnabled) {
-		Gfx_BindIndexBuffer(RenderGroup->IEntry->Buffer);
+	if(render_group->index_drawing_enabled) {
+		Gfx_BindIndexBuffer(render_group->ientry->buffer);
 	}
 	
-	if(RenderGroup->CBufferEnabled) {
-		Gfx_BindUniformBuffer(RenderGroup->UEntry->Buffer, R_Shader_Kind_Vertex);
+	if(render_group->cbuffer_enabled) {
+		Gfx_BindUniformBuffer(render_group->uentry->buffer, R_Shader_Kind_Vertex);
 	}
 	
-	Gfx_BindVertexShader(RenderGroup->Info.VShader);
-	Gfx_BindFragmentShader(RenderGroup->Info.FShader);
+	Gfx_BindVertexShader(render_group->info.vshader);
+	Gfx_BindFragmentShader(render_group->info.fshader);
 	
-	if(RenderGroup->IndexDrawingEnabled) {
-		Gfx_DrawIndices(RenderGroup->ICount);
+	if(render_group->index_drawing_enabled) {
+		Gfx_DrawIndices(render_group->icount);
 	}
 	else {
-		Gfx_DrawVertices(RenderGroup->VCount);
+		Gfx_DrawVertices(render_group->vcount);
 	}
 	
 	// TODO(nates): I do not like this because it does a VirtualFree
 	// each frame on windows. Research if that is that performance costly.
-	ArenaRelease(RenderGroup->VArena);
-	if(RenderGroup->IndexDrawingEnabled) {
-		ArenaRelease(RenderGroup->IArena);
+	ArenaRelease(render_group->varena);
+	if(render_group->index_drawing_enabled) {
+		ArenaRelease(render_group->iarena);
 	}
-	if(RenderGroup->CBufferEnabled) {
-		ArenaRelease(RenderGroup->UArena);
+	if(render_group->cbuffer_enabled) {
+		ArenaRelease(render_group->uarena);
 	}
 }

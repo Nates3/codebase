@@ -2,50 +2,50 @@
 #ifndef GFX_ESSENTIAL_H
 #define GFX_ESSENTIAL_H
 
-func_ void Gfx_Startup(os_handle Window);
-func_ void Gfx_ResizeRenderTarget(u32 NewWidth, u32 NewHeight);
+func_ void Gfx_Startup(OS_Handle window);
+func_ void Gfx_ResizeRenderTarget(U32 new_width, U32 new_height);
 
-func_ r_buffer Gfx_MakeDynamicVBuffer(u64 BufferSize);
-func_ r_buffer Gfx_MakeDynamicIBuffer(u64 BufferSize);
-func_ r_buffer Gfx_MakeDynamicUBuffer(u64 BufferSize);
+func_ R_Buffer Gfx_MakeDynamicVBuffer(U64 buffer_size);
+func_ R_Buffer Gfx_MakeDynamicIBuffer(U64 buffer_size);
+func_ R_Buffer Gfx_MakeDynamicUBuffer(U64 buffer_size);
 
-func_ void Gfx_SetVertexBufferData(r_buffer vbuffer, void *memory, u64 memory_size);
-func_ void Gfx_SetIndexBufferData(r_buffer ibuffer, void *memory, u64 memory_size);
-func_ void Gfx_SetUniformBufferData(r_buffer ubuffer, void *memory, u64 memory_size);
+func_ void Gfx_SetVertexBufferData(R_Buffer vbuffer, void *memory, U64 memory_size);
+func_ void Gfx_SetIndexBufferData(R_Buffer ibuffer, void *memory, U64 memory_size);
+func_ void Gfx_SetUniformBufferData(R_Buffer ubuffer, void *memory, U64 memory_size);
 
-func_ r_shader Gfx_MakeVertexShader(string8 filename);
-func_ r_shader Gfx_MakeFragmentShader(string8 filename);
-func_ r_shader Gfx_MakeGeometryShader(string8 filename);
+func_ R_Shader Gfx_MakeVertexShader(Str8 filename);
+func_ R_Shader Gfx_MakeFragmentShader(Str8 filename);
+func_ R_Shader Gfx_MakeGeometryShader(Str8 filename);
 
 #define Gfx_MakeInputLayout(vertex_shader, elements) Gfx_MakeInputLayout_(vertex_shader, elements, ArrayCount(elements));
-func_ r_layout Gfx_MakeInputLayout_(r_handle vertex_shader, r_layout_element *elements, u32 element_count);
+func_ R_Layout Gfx_MakeInputLayout_(R_Handle vertex_shader, R_LayoutElement *elements, U32 element_count);
 
-func_ r_handle Gfx_MakeFullViewport(void);
-func_ r_handle Gfx_MakeViewport(rng2 rect);
+func_ R_Handle Gfx_MakeFullViewport(void);
+func_ R_Handle Gfx_MakeViewport(R2 rect);
 
-func_ r_handle Gfx_MakeTexture(void *data, u32 width, u32 height);
-func_ r_handle Gfx_MakeTextureContext(b32 blending);
+func_ R_Handle Gfx_MakeTexture(void *data, U32 width, U32 height);
+func_ R_Handle Gfx_MakeTextureContext(B32 blending);
 
 // nates: these functions should be called in the order top down
-func_ void Gfx_BindViewport(r_handle viewport);
+func_ void Gfx_BindViewport(R_Handle viewport);
 func_ void Gfx_SetRenderTarget(void);
 
-func_ void Gfx_BindInputLayout(r_layout layout);
+func_ void Gfx_BindInputLayout(R_Layout layout);
 
-func_ void Gfx_BindVertexBuffer(r_buffer vbuffer, u32 stride, u32 offset);
-func_ void Gfx_BindIndexBuffer(r_buffer ibuffer);
-func_ void Gfx_BindUniformBuffer(r_buffer ubuffer, r_shader_kind kind);
+func_ void Gfx_BindVertexBuffer(R_Buffer vbuffer, U32 stride, U32 offset);
+func_ void Gfx_BindIndexBuffer(R_Buffer ibuffer);
+func_ void Gfx_BindUniformBuffer(R_Buffer ubuffer, R_Shader_kind kind);
 
-func_ void Gfx_BindInputLayout(r_layout layout);
+func_ void Gfx_BindInputLayout(R_Layout layout);
 
-func_ void Gfx_BindVertexShader(r_shader vertex_shader);
-func_ void Gfx_BindFragmentShader(r_shader pixel_shader);
+func_ void Gfx_BindVertexShader(R_Shader vertex_shader);
+func_ void Gfx_BindFragmentShader(R_Shader pixel_shader);
 
-func_ void Gfx_FillRenderTarget(v4 background_color);
+func_ void Gfx_FillRenderTarget(V4 background_color);
 func_ void Gfx_ClearDepthBuffer(void);
-func_ void Gfx_SetRenderMode(r_mode mode);
-func_ void Gfx_DrawIndices(u32 index_array_count);
-func_ void Gfx_DrawVertices(u32 vertex_array_count);
+func_ void Gfx_SetRenderMode(R_Mode mode);
+func_ void Gfx_DrawIndices(U32 index_array_count);
+func_ void Gfx_DrawVertices(U32 vertex_array_count);
 func_ void Gfx_SwapBuffers(void);
 
 

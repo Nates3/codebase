@@ -131,25 +131,25 @@
 
 #include <stdint.h>
 
-typedef int8_t s8;
-typedef int16_t s16;
-typedef int32_t s32;
-typedef int64_t s64;
+typedef int8_t S8;
+typedef int16_t S16;
+typedef int32_t S32;
+typedef int64_t S64;
 
-typedef uint8_t u8;
-typedef uint16_t u16;
-typedef uint32_t u32;
-typedef uint64_t u64;
+typedef uint8_t U8;
+typedef uint16_t U16;
+typedef uint32_t U32;
+typedef uint64_t U64;
 
-typedef float r32;
-typedef double r64;
+typedef float F32;
+typedef double F64;
 
-typedef s8 b8;
-typedef s16 b16;
-typedef s32 b32;
-typedef s64 b64;
+typedef S8 B8;
+typedef S16 B16;
+typedef S32 B32;
+typedef S64 B64;
 
-typedef void void_func(void);
+typedef void Void_Func(void);
 
 
 //////////////////////
@@ -176,17 +176,17 @@ typedef void void_func(void);
 #error export not defined on this compiler
 #endif
 
-#define KB(number) ((u64)(number) << 10)
-#define MB(number) ((u64)(number) << 20)
-#define GB(number) ((u64)(number) << 30)
-#define TB(number) ((u64)(number) << 40)
+#define KB(number) ((U64)(number) << 10)
+#define MB(number) ((U64)(number) << 20)
+#define GB(number) ((U64)(number) << 30)
+#define TB(number) ((U64)(number) << 40)
 
-#define Thousand(number) ((u64)(number)*1000)
-#define Million(number)  ((u64)(number)*1000000llu)
-#define Billion(number)  ((u64)(number)*1000000000llu)
-#define Trillion(number) ((u64)(number)*1000000000000llu)
+#define Thousand(number) ((U64)(number)*1000)
+#define Million(number)  ((U64)(number)*1000000llu)
+#define Billion(number)  ((U64)(number)*1000000000llu)
+#define Trillion(number) ((U64)(number)*1000000000000llu)
 
-#define StaticAssert(c, l) typedef u8 Glue(l, __LINE__) [(c)?1:-1]
+#define StaticAssert(c, l) typedef U8 Glue(l, __LINE__) [(c)?1:-1]
 
 #define Stringify_(S) #S
 #define Stringify(S) Stringify_(S)
@@ -195,8 +195,8 @@ typedef void void_func(void);
 
 #define ArrayCount(A) (sizeof(A) / sizeof(*(A)))
 
-#define IntAsPtr(P) (unsigned long long)((char *)P - (char *)0)
-#define PtrAsInt(N) (void *)((char *)0 + (N))
+#define IntFromPtr(P) (unsigned long long)((char *)P - (char *)0)
+#define PtrFromInt(N) (void *)((char *)0 + (N))
 
 #define StructMember(S, M) (((S*)0)->M)
 #define OffsetOfMember(S, M) IntFromPtr(&StructMember(S, M))
@@ -246,9 +246,9 @@ Minimum(sizeof(*(D)), sizeof(*(S))))
 #define DLLPushBackNP(f, l, n, next, prev) ((f)==0?\
 ((f)=(l)=(n), (n)->next=(n)->prev=0):\
 ((n)->prev=(l), (l)->next=(n), (l)=(n), (n)->next=0))
-#define DLLPushBack(f, l, n) DLLPushBackNP(f, l, n, Next, Prev);
+#define DLLPushBack(f, l, n) DLLPushBackNP(f, l, n, next, prev);
 #define DLLPushFrontNP(f, l, n, next, prev) DLLPushBackNP(l, f, n, prev, next)
-#define DLLPushFront(f, l, n) DLLPushBackNP(l, f, n, Prev, Next)
+#define DLLPushFront(f, l, n) DLLPushBackNP(l, f, n, prev, next)
 #define DLLRemoveNP(f,l,n,next,prev) ((f)==(l)&&(f)==(n)?\
 ((f)=(l)=0):\
 ((f)==(n)?\
@@ -257,64 +257,44 @@ Minimum(sizeof(*(D)), sizeof(*(S))))
 ((l)=(l)->prev,(l)->next=0):\
 ((n)->prev->next=(n)->next,\
 (n)->next->prev=(n)->prev))))
-#define DLLRemove(f,l,n) DLLRemoveNP(f, l, n, Next, Prev)
+#define DLLRemove(f,l,n) DLLRemoveNP(f, l, n, next, prev)
 
 
 #define QueuePushN(f, l, n, next) ((f)==0?\
 ((f)=(l)=(n), (n)->next=0):\
 ((l)->next=(n), (l)=(n)), \
 (n)->next=0)
-#define QueuePush(f, l, n) QueuePushN(f, l, n, Next)
+#define QueuePush(f, l, n) QueuePushN(f, l, n, next)
 #define QueuePushFrontN(f, l, n, next) ((f)==0?\
 ((f)=(l)=(n), (n)->next=0):\
 ((n)->next=(f), (f)=(n)))
-#define QueuePushFront(f, l, n) QueuePushFrontN(f, l, n, Next)
+#define QueuePushFront(f, l, n) QueuePushFrontN(f, l, n, next)
 #define QueuePopN(f, l, next) ((f)==(l)?\
 ((f)=(l)=0):\
 ((f)=(f)->next))
-#define QueuePop(f, l) QueuePopN(f, l, Next)
+#define QueuePop(f, l) QueuePopN(f, l, next)
 
 
 #define StackPushN(f, n, next) ((n)->next=(f), (f)=(n))
-#define StackPush(f, n) StackPushN(f, n, Next)
+#define StackPush(f, n) StackPushN(f, n, next)
 #define StackPopN(f, next) ((f)==0?0:\
 ((f)=(f)->next))
-#define StackPop(f) StackPopN(f, Next)
+#define StackPop(f) StackPopN(f, next)
 
 
 ////////////////////////////
 // NOTE(nates): Base Types
 
-typedef enum axis_2
-{
-	Axis2X,
-	Axis2Y,
-} axis_2;
-
-typedef enum axis_4
-{
-	Axis4X,
-	Axis4Y,
-	Axis4Z,
-	Axis4W,
-} axis_4;
-
-typedef enum side_mm
-{
-	SideMin,
-	SideMax,
-} side_mm;
-
-typedef enum operating_system
+typedef enum OperatingSystem
 {
 	OperatingSystem_Null,
 	OperatingSystem_Windows,
 	OperatingSystem_Linux,
 	OperatingSystem_Mac,
 	OperatingSystem_Count,
-} operating_system;
+} OperatingSystem;
 
-typedef enum architecture
+typedef enum Architecture
 {
 	Architecture_Null,
 	Architecture_X64,
@@ -322,9 +302,9 @@ typedef enum architecture
 	Architecture_Arm,
 	Architecture_Arm64,
 	Architecture_Count,
-} architecture;
+} Architecture;
 
-typedef enum month
+typedef enum Month
 {
 	Month_Jan,
 	Month_Feb,
@@ -338,9 +318,9 @@ typedef enum month
 	Month_Oct,
 	Month_Nov,
 	Month_Dec,
-} month;
+} Month;
 
-typedef enum week_day
+typedef enum WeekDay
 {
 	WeekDay_Monday,
 	WeekDay_Tuesday,
@@ -349,13 +329,13 @@ typedef enum week_day
 	WeekDay_Friday,
 	WeekDay_Saturday,
 	WeekDay_Sunday,
-} week_day;
+} WeekDay;
 
 ///////////////////////////////////
 //~ NOTE(nates): Access flags
 
-typedef u32 data_access_flags;
-enum data_access_flags
+typedef U32 DataAccessFlags;
+enum DataAccessFlags
 {
 	DataAccessFlag_Read = (1 << 0),
 	DataAccessFlag_Write = (1 << 1),
@@ -365,84 +345,52 @@ enum data_access_flags
 ///////////////////////////////
 // NOTE(nates): Time
 
-typedef u64 dense_time;
+typedef U64 DenseTime;
 
-typedef struct date_time
+typedef struct DateTime
 {
-	u16 Ms; // [0,999]
-	u8 Sec;   // [0,60] -> 60 and not 59 because of leap seconds
-	u8 Min;   // [0,59]
-	u8 Hour;  // [0,23]
-	u8 Day;   // [0,30]
-	u8 Mon;   // [1,12]
-	s16 Year; // 1 = 1 CE; 2000 == 2000 CE; 0 = 1 BCE; -100 = 101 BCE
-} date_time;
+	U16 ms; // [0,999]
+	U8 sec;   // [0,60] -> 60 and not 59 because of leap seconds
+	U8 min;   // [0,59]
+	U8 hour;  // [0,23]
+	U8 day;   // [0,30]
+	U8 mon;   // [1,12]
+	U16 year; // 1 = 1 CE; 2000 == 2000 CE; 0 = 1 BCE; -100 = 101 BCE
+} DateTime;
 
 ///////////////////////////////
 //~ NOTE(nates): File properties
 
-typedef u32 file_property_flags;
-enum file_property_flags
+typedef U32 FilePropertyFlags;
+enum FilePropertyFlags
 {
 	FilePropertyFlag_IsFolder = (1 << 0),
 };
 
-typedef struct file_properties
+typedef struct FileProperties
 {
-	u64 Size;
-	file_property_flags Flags;
-	dense_time CreateTime;
-	dense_time ModifyTime;
-	data_access_flags Access;
-} file_properties;
-
-////////////////////////////////
-// NOTE(nates): Base constants
-
-global_ s8 S8Min = (s8)0x80;
-global_ s16 S16Min = (s16)0x8000;
-global_ s32 S32Min = (s32)0x80000000;
-global_ s64 S64Min = (s64)0x8000000000000000llu;
-
-global_ s8 S8Max = (s8)0x7f;
-global_ s16 S16Max = (s16)0x7fff;
-global_ s32 S32Max = (s32)0x7fffffff;
-global_ s64 S64Max = (s64)0x7fffffffffffffffllu;
-
-global_ u8 U8Max = (u8)0xff;
-global_ u16 U16Max = (u16)0xffff;
-global_ u32 U32Max = (u32)0xffffffff;
-global_ u64 U64Max = (u64)0xffffffffffffffffllu;
-
-#include <float.h>
-#include <limits.h>
-#define R32MAX FLT_MAX
-#define S32MAX INT_MAX
-#define S32MIN INT_MIN
-#define U32MAX UINT_MAX
-#define U32MIN 0
-
-#define PI32 3.14159265359f
-#define TAU32 6.28318530718f
-
-#define DegreesToRadians (PI32 / 180.0f)
-#define RadiansToDegrees (180.0f / PI32)
+	U64 size;
+	FilePropertyFlags flags;
+	DenseTime create_time;
+	DenseTime modify_time;
+	DataAccessFlags access;
+} FileProperties;
 
 ////////////////////////////////////
 // NOTE(nates): World enums functions
 
-func_ operating_system OS_Context(void);
-func_ architecture Arch_Context(void);
-func_ char *CstrFromOS(operating_system OS);
-func_ char *CstrFromArch(architecture Arch);
-func_ char *CstrFromMonth(month Month);
-func_ char *CstrFromWeekday(week_day day);
+func_ OperatingSystem OSContext(void);
+func_ Architecture ArchContext(void);
+func_ char *CstrFromOS(OperatingSystem os);
+func_ char *CstrFromArch(Architecture arch);
+func_ char *CstrFromMonth(Month month );
+func_ char *CstrFromWeekday(WeekDay day);
 
 //////////////////////////////////////////
 // NOTE(nates): Date time && Dense time functions
 
-func_ dense_time DenseTimeFromDateTime(date_time *time);
-func_ date_time  DateTimeFromDenseTime(dense_time time);
+func_ DenseTime DenseTimeFromDateTime(DateTime *time);
+func_ DateTime  DateTimeFromDenseTime(DenseTime time);
 
 
 #endif //BASE_TYPES_H

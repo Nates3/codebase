@@ -5,28 +5,28 @@
 ////////////////////////////////
 //~ NOTE(nates): String8 types
 
-typedef struct string8
+typedef struct Str8
 {
-  u8 *M;
-  u64 Size;
-} string8;
+  U8 *m;
+  U64 size;
+} Str8;
 
-typedef struct string8_node string8_node;
-struct string8_node
+typedef struct Str8Node Str8Node;
+struct Str8Node
 {
-	string8_node *Next;
-	string8 String;
+	Str8Node *next;
+	Str8 str;
 };
 
-typedef struct string8_list
+typedef struct Str8List
 {
-	string8_node *First;
-	string8_node *Last;
-	u64 Count;
-	u64 TotalSize;
-}string8_list;
+	Str8Node *first;
+	Str8Node*last;
+	U64 count;
+	U64 total_size;
+}Str8List;
 
-typedef u32 string_match_flags;
+typedef U32 StrMatchFlags;
 enum
 {
 	StringMatchFlag_NoCase = (1 << 0),
@@ -35,107 +35,107 @@ enum
 ///////////////////////////////////////
 //~ NOTE(nates): Unicode string type
 
-typedef struct string16
+typedef struct Str16
 {
-	u16 *M;
-	u64 Size;
-}string16;
+	U16 *m;
+	U64 size;
+} Str16;
 
-typedef struct string32
+typedef struct Str32
 {
-	u32 *M;
-	u64 Size;
-} string32;
+	U32 *m;
+	U64 size;
+} Str32;
 
-typedef struct string_decode
+typedef struct StrDecode
 {
-	u32 Codepoint;
-	u32 Size;
-} string_decode;
+	U32 codepoint;
+	U32 size;
+} StrDecode;
 
 ///////////////////////////////////////////////////
 //~ NOTE(nates): Character functions
 
-func_ u8 U8Uppercase(u8 value);
-func_ u8 U8Lowercase(u8 value);
-func_ b32 CharIsSlash(u8 character);
+func_ U8 U8Uppercase(U8 value);
+func_ U8 U8Lowercase(U8 value);
+func_ B32 U8IsSlash(U8 character);
 
 ////////////////////////////////////////////////////
 //~ NOTE(nates): Immutable string8 helper functions
 
-func_ string8 Str8(u8 *str, u64 size);
-func_ string8 Str8Rng(u8 *first, u8 *opl);
-func_ string8 Str8Cstr(u8 *cstr);
-func_ char   *CstrStr8(arena *Arena, string8 String);
-func_ string8 CopyStr8(arena *Arena, string8 String);
+func_ Str8 MStr8(U8 *str, U64 size);
+func_ Str8 Str8Rng(U8 *first, U8 *opl);
+func_ Str8 Str8FromCstr(U8 *cstr);
+func_ char*CstrFromStr8(Arena *arena, Str8 str);
+func_ Str8 Str8Copy(Arena *arena, Str8 str);
 
 ///////////////////////////////////////////////
-//~ NOTE(nates): Immutable string16 helper functions
+//~ NOTE(nates): Immutable s_s16 helper functions
 
-func_ string16 Str16(u16 *Str, u64 Size);
-func_ string16 Str16Cstr(u16 *Str);
+func_ Str16 MStr16(U16 *str, U64 size);
+func_ Str16 Str16FromCstr(U16 *str);
 
 ////////////////////////////////////////////////
 //~ NOTE(nates): String8 manipulation functions
 
-#define Str8Lit(s) Str8((u8 *)(s), sizeof(s) - 1)
+#define Str8Lit(s) MStr8((U8 *)(s), sizeof(s) - 1)
 
-func_ string8 PrefixStr8(string8 Str, u64 Size);
-func_ string8 ChopStr8(string8 Str, u64 Amount);
-func_ string8 PostfixStr8(string8 Str, u64 Size);
-func_ string8 SkipStr8(string8 Str, u64 Amount);
-func_ string8 SubstrStr8(string8 Str, u64 First, u64 opl);
-func_ string8 SubsizeStr8(string8 Str, u64 First, u64 Size);
+func_ Str8 Str8Prefix(Str8 str, U64 size);
+func_ Str8 Str8Chop(Str8 str, U64 amount);
+func_ Str8 Str8Postfix(Str8 str, U64 size);
+func_ Str8 Str8Skip(Str8 str, U64 amount);
+func_ Str8 Str8Substr(Str8 str, U64 first, U64 opl);
+func_ Str8 Str8Subsize(Str8 str, U64 first, U64 size);
 
-#define Str8Expand(s) (int)((s).size), ((s).str)
+#define Str8Expand(s) (int)((s).size), ((s).m)
 
-func_ string8 ChopAtLastSlashStr8(string8 Str);
+func_ Str8 Str8ChopAtLastSlash(Str8 str);
 
-func_ s32 S32FromStr8(string8 Str);
-func_ s64 S64FromStr8(string8 Str);
-func_ u32 U32FromStr8(string8 Str);
-func_ u64 U64FromStr8(string8 Str);
+func_ S32 S32FromStr8(Str8 str);
+func_ S64 S64FromStr8(Str8 str);
+func_ U32 U32FromStr8(Str8 str);
+func_ U64 U64FromStr8(Str8 str);
 
-func_ string8 Str8FromU64(arena *Arena, u64 Num);
-func_ string8 Str8FromS64(arena *Arena, s64 Num);
+func_ Str8 Str8FromU64(Arena *arena, U64 num);
+func_ Str8 Str8FromS64(Arena *arena, S64 num);
 
 /////////////////////////////////////////////////
 //~ NOTE(nates): String helper functions
 
-func_ b32 Str8Match(string8 A, string8 B, string_match_flags Flags);
-func_ string8 FindFirstStr8(string8 Haystack, string8 Needle, string_match_flags Flags);
+func_ B32 Str8Match(Str8 a, Str8 b, StrMatchFlags flags);
+func_ Str8 Str8FindFirst(Str8 haystack, Str8 needle, StrMatchFlags flags);
 
 // NOTE(nates): Hashing
 
-func_ u64 HashStr8(string8 String);
+func_ U64 Str8Hash(Str8 str);
 
 /////////////////////////////////////////
 //~ NOTE(nates): String list functions
 
-func_ void PushExplicitStr8List(string8_list *List, string8 String, string8_node *Node);
-func_ void PushStr8List(arena *Arena, string8_list *List, string8 String);
-func_ string8 JoinStr8List(arena *Arena, string8_list *List);
-func_ string8_list SplitStr8List(arena *Arena, string8 String, u8 *Splits, u32 Count);
+func_ void Str8ListPushExplicit(Str8List *List, Str8 str, Str8Node *node);
+func_ void Str8ListPush(Arena *arena, Str8List *list, Str8 str);
+func_ Str8 Str8ListJoin(Arena *arena, Str8List *list);
+func_ Str8List Str8ListSplit(Arena *arena, Str8 string, U8 *splits, U32 count);
 
 /////////////////////////////////////
-//~ NOTE(nates): Format strings
+//~ NOTE(nates): Format s_ss
 
-func_ string8 PushFVStr8(arena *Arena, char *Fmt, va_list Args);
-func_ string8 PushFStr8(arena *Arena, char *Fmt, ...);
-func_ void PushFStr8List(arena *Arena, string8_list *List, char *Fmt, ...);
+func_ Str8 Str8PushFV(Arena *arena, char *fmt, va_list args);
+func_ Str8 Str8PushF(Arena *arena, char *fmt, ...);
+func_ void Str8ListPushF(Arena *arena, Str8List *list, char *fmt, ...);
 
 /////////////////////////////////////////
 //~ NOTE(nates): Unicode Helpers
 
-func_ string_decode DecodeUtf8Str(u8 *Str, u64 Cap);
-func_ u32 EncodeUtf8Str(u8 *Dst, u32 Codepoint);
-func_ string_decode DecodeUtf16Str(u16 *str, u32 Cap);
-func_ u32 EncodeUtf16Str(u16 *Dst, u32 Codepoint);
+func_ StrDecode DecodeUtf8(U8 *str, U64 cap);
+func_ U32 EncodeUtf8(U8 *dst, U32 codepoint);
+func_ StrDecode DecodeUtf16(U16 *str, U32 cap);
+func_ U32 EncodeUtf16(U16 *dst, U32 codepoint);
 
-func_ string32 Str32FromStr8(arena *Arena, string8 string);
-func_ string8 Str8FromStr32(arena *Arena, string32 string);
-func_ string16 Str16FromStr8(arena *Arena, string8 string);
-func_ string8 Str8FromStr16(arena *Arena, string16 string);
+func_ Str32 Str32FromStr8(Arena *arena, Str8 str);
+func_ Str8 Str8FromStr32(Arena *arena, Str32 str);
+func_ Str16 Str16FromStr8(Arena *arena, Str8 str);
+func_ Str8 Str8FromStr16(Arena *arena, Str16 str);
 
 
 #endif //BASE_STRING_H

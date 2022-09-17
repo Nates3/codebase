@@ -1,9 +1,9 @@
 
 
- func_ operating_system
-OS_Context(void)
+ func_ OperatingSystem
+OSContext(void)
 {
-	operating_system Result = OperatingSystem_Null;
+	OperatingSystem Result = OperatingSystem_Null;
 #if OS_WINDOWS
 	Result = OperatingSystem_Windows;
 #elif OS_LINUX
@@ -15,10 +15,10 @@ OS_Context(void)
 }
 
 
-func_ architecture 
-Arch_Context(void)
+func_ Architecture 
+ArchContext(void)
 {
-	architecture Result = Architecture_Null;
+	Architecture Result = Architecture_Null;
 #if ARCH_X64
 	Result = Architecture_X64;
 #elif ARCH_X86
@@ -30,7 +30,7 @@ Arch_Context(void)
 }
 
 func_ char *
-CstrFromOS(operating_system OS)
+CstrFromOS(OperatingSystem OS)
 {
 	char *Result = 0;
 	switch(OS) {
@@ -51,7 +51,7 @@ CstrFromOS(operating_system OS)
 }
 
 func_ char *
-CstrFromArch(architecture Arch)
+CstrFromArch(Architecture  Arch)
 {
 	char *Result = 0;
 	switch(Arch)
@@ -75,10 +75,10 @@ CstrFromArch(architecture Arch)
 }
 
 func_ char *
-CstrFromMonth(month Month)
+CstrFromMonth(Month month)
 {
 	char *Result = 0;
-	switch(Month)
+	switch(month)
 	{
 		case Month_Jan: {
 			Result = "January";
@@ -123,7 +123,7 @@ CstrFromMonth(month Month)
 }
 
 func_ char *
-CstrFromWeekday(week_day day)
+CstrFromWeekday(WeekDay day)
 {
 	char *Result = 0;
 	switch(day)
@@ -158,44 +158,44 @@ CstrFromWeekday(week_day day)
 ////////////////////////////////////
 // NOTE(nates): Time functions
 
-func_ dense_time
-DenseTimeFromDateTime(date_time *time)
+func_ DenseTime
+DenseTimeFromDateTime(DateTime *time)
 {
-	u64 result = 0;
-	u32 year_decoded = (u32)((s32)time->Year + 0x8000);
+	DenseTime result = 0;
+	U32 year_decoded = (U32)((S32)time->year + 0x8000);
 	result += year_decoded;
 	result *= 12;
-	result += (time->Mon + 1);
+	result += (time->mon + 1);
 	result *= 31;
-	result += time->Day;
+	result += time->day;
 	result *= 24;
-	result += time->Hour;
+	result += time->hour;
 	result *= 60;
-	result += time->Min;
+	result += time->min;
 	result *= 61;
-	result += time->Sec;
+	result += time->sec;
 	result *= 1000;
-	result += time->Ms;
+	result += time->ms;
 	return(result);
 }
 
-func_ date_time
-DateTimeFromDenseTime(dense_time time)
+func_ DateTime
+DateTimeFromDenseTime(DenseTime time)
 {
-	date_time result = {0};
-	result.Ms = time%1000;
+	DateTime result = {0};
+	result.ms = time%1000;
 	time /= 1000;
-	result.Sec = time%61;
+	result.sec = time%61;
 	time /= 61;
-	result.Min = time%60;
+	result.min = time%60;
 	time /= 60;
-	result.Hour = time%24;
+	result.hour = time%24;
 	time /= 24;
-	result.Day = time%31;
+	result.day = time%31;
 	time /= 31;
-	result.Mon = (time%12) + 1;
+	result.mon = (time%12) + 1;
 	time /= 12;
-	s32 year_encoded = (s32)time;
-	result.Year = (u32)(year_encoded - 0x8000);
+	S32 year_encoded = (S32)time;
+	result.year = (U32)(year_encoded - 0x8000);
 	return(result);
 }

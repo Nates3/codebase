@@ -2,64 +2,64 @@
 #ifndef GFX_RENDERGROUP_H
 #define GFX_RENDERGROUP_H
 
-typedef struct r_buffer_entry
+typedef struct R_BufferEntry
 {
-	r_buffer Buffer;
-	b32 BeingUsed;
-} r_buffer_entry;
+	R_Buffer buffer;
+	B32 being_used;
+} R_BufferEntry;
 
-typedef struct render_group
+typedef struct R_Group
 {
-	u32 VCount;
-	u32 ICount;
+	U32 vcount;
+	U32 icount;
 	
-	r_info Info;
+	R_Info info;
 	
-	b8 IndexDrawingEnabled;
-	b8 CBufferEnabled;
-	b8 ClipRectEnabled;
-	b8 WireFrameEnabled;
+	B8 index_drawing_enabled;
+	B8 cbuffer_enabled;
+	B8 cliprect_enabled;
+	B8 wireframe_enabled;
 	
-	arena *VArena;
-	arena *IArena;
-	arena *UArena;
+	Arena *varena;
+	Arena *iarena;
+	Arena *uarena;
 	// TODO(nates): buffer sizes tells the state of the
 	// render group which calls to make
-	r_buffer_entry *VEntry;
-	r_buffer_entry *IEntry;
-	r_buffer_entry *UEntry;
+	R_BufferEntry *ventry;
+	R_BufferEntry *ientry;
+	R_BufferEntry *uentry;
 	
-	rng2 ClipRect;
-}render_group;
+	R2 cliprect;
+} R_Group;
 
 
 // TODO(nates): Organize these funcctions
-func_ void PushVertexV3(render_group *RenderGroup, v3 Vertex);
-func_ void PushVertexV3C3(render_group *RenderGroup, v3 Vertex, v3 Color);
-func_ void PushVertexV3T2(render_group *RenderGroup, v3 Vertex, v2 TexCoord);
-func_ void PushIndex(render_group *RenderGroup, u32 Index);
-func_ void PushVTriangleV3(render_group *RenderGroup, v3 p0, v3 p1, v3 p2);
-func_ void PushVTriangleV3C3(render_group *RenderGroup, v3 p0, v3 p1, v3 p2, v3 Color);
-func_ void PushVTriangleV3T2(render_group *RenderGroup, v3 p0, v3 p1, v3 p2, v2 t0, v2 t1, v2 t2);
-func_ void PushITriangleV3(render_group *RenderGroup, v3 p0, v3 p1, v3 p2);
-func_ void PushITriangleV3C3(render_group *RenderGroup, v3 p0, v3 p1, v3 p2, v3 Color);
-func_ void PushITriangleV3T2(render_group *RenderGroup, v3 p0, v3 p1, v3 p2, v2 t0, v2 t1, v2 t2);
-func_ void PushUniformData(render_group *RenderGroup, void *Data, u32 DataSize);
+func_ void PushVertexV3(R_Group *render_group, V3 vertex);
+func_ void PushVertexV3C3(R_Group *render_group, V3 vertex, V3 color);
+func_ void PushVertexV3T2(R_Group *render_group, V3 vertex, V2 tex_coord);
+func_ void PushIndex(R_Group *render_group, U32 index);
+func_ void PushVTriangleV3(R_Group *render_group, V3 v0, V3 v1, V3 v2);
+func_ void PushVTriangleV3C3(R_Group *render_group, V3 v0, V3 v1, V3 v2, V3 color);
+func_ void PushVTriangleV3T2(R_Group *render_group, V3 v0, V3 v1, V3 v2, V2 t0, V2 t1, V2 t2);
+func_ void PushITriangleV3(R_Group *render_group, V3 v, V3 v1, V3 v2);
+func_ void PushITriangleV3C3(R_Group *render_group, V3 v0, V3 v1, V3 v2, V3 color);
+func_ void PushITriangleV3T2(R_Group *render_group, V3 v0, V3 v1, V3 v2, V2 t0, V2 t1, V2 t2);
+func_ void PushUniformData(R_Group *render_group, void *Data, U32 DataSize);
 
 #define MAX_RENDERGROUP_BUFFER_ENTRIES 16
-global_ r_buffer_entry GRenderGroupVBufferEntries[MAX_RENDERGROUP_BUFFER_ENTRIES] = {0};
-global_ r_buffer_entry GRenderGroupIBufferEntries[MAX_RENDERGROUP_BUFFER_ENTRIES] = {0};
-global_ r_buffer_entry GRenderGroupUBufferEntries[MAX_RENDERGROUP_BUFFER_ENTRIES] = {0};
+global_ R_BufferEntry g_rgroup_vbuffer_entries[MAX_RENDERGROUP_BUFFER_ENTRIES] = {0};
+global_ R_BufferEntry g_rgroup_ibuffer_entries[MAX_RENDERGROUP_BUFFER_ENTRIES] = {0};
+global_ R_BufferEntry g_rgroup_ubuffer_entries[MAX_RENDERGROUP_BUFFER_ENTRIES] = {0};
 
 
 // TODO(nates): Be able to resize the buffer entries
-func_ void InitRenderGroupBufferEntries(u64 VBufferSize, u64 IBufferSize, u64 UBufferSize);
-func_ void PushRenderInfo(render_group *RenderGroup, r_info Info);
-func_ void PushVertexBuffer(render_group *RenderGroup);
-func_ void PushIndexBuffer(render_group *RenderGroup);
-func_ void PushUniformBuffer(render_group *RenderGroup);
-func_ void PushClipRect(render_group *RenderGroup, rng2 Rect);
-func_ void RenderGroupToOutput(render_group *RenderGroup, r_handle Viewport, r_handle Texture);
+func_ void InitRenderGroupBufferEntries(U64 vbuffer_size, U64 ibuffer_size, U64 ubuffer_size);
+func_ void PushRenderInfo(R_Group *render_group, R_Info info);
+func_ void PushVertexBuffer(R_Group *render_group);
+func_ void PushIndexBuffer(R_Group *render_group);
+func_ void PushUniformBuffer(R_Group *render_group);
+func_ void PushClipRect(R_Group *render_group, R2 rect);
+func_ void RenderGroupToOutput(R_Group *render_group, R_Handle Viewport, R_Handle Texture);
 
 
 #endif //GFX_RENDERGROUP_H

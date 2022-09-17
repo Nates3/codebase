@@ -6,40 +6,40 @@
 #define ArenaImpl_Decommit(ptr, size) OS_DecommitMemory(ptr, size);
 #define ArenaImpl_Release(ptr) OS_ReleaseMemory(ptr)
 
-func_ arena *
-ArenaAlloc(u64 size_to_reserve)
+func_ Arena *
+ArenaAlloc(U64 size_to_reserve)
 {
-	size_to_reserve += sizeof(arena);
+	size_to_reserve += sizeof(Arena);
 	
 	void *memory = ArenaImpl_Reserve(size_to_reserve);
-	u64 initial_commit_size = ARENA_COMMIT_GRANULARITY;
+	U64 initial_commit_size = ARENA_COMMIT_GRANULARITY;
 	ArenaImpl_Commit(memory, initial_commit_size);
 	
-	arena *result = (arena *)memory;
-	result->CommitPos = initial_commit_size;
-	result->Pos = sizeof(arena);
-	result->Size = size_to_reserve;
-	result->Align = 8;
+	Arena *result = (Arena *)memory;
+	result->commit_pos = initial_commit_size;
+	result->pos = sizeof(Arena);
+	result->size = size_to_reserve;
+	result->align = 8;
 	return(result);
 }
 
 func_ void *
-ArenaPush(arena *Arena, u64 size)
+ArenaPush(Arena *arena, U64 size)
 {
 	void *result = 0;
-	u64 new_pos = Arena->Pos + size;
-	if(new_pos <= Arena->Size) {
-		u8 *base = (u8*)Arena;
-		u64 align = AlignUpNum(Arena->Pos, Arena->Align);
-		result = base + Arena->Pos + align;
-		Arena->Pos += size + align;
+	U64 new_pos = arena->pos + size;
+	if(new_pos <= arena->size) {
+		U8 *base = (U8*)arena;
+		U64 align = AlignUpNum(arena->pos, arena->align);
+		result = base + arena->pos + align;
+		arena->pos += size + align;
 		
-		if(Arena->CommitPos < Arena->Pos) {
-			u64 size_to_commit = Arena->Pos - Arena->CommitPos;
+		if(arena->commit_pos < arena->pos) {
+			U64 size_to_commit = arena->pos - arena->commit_pos;
 			size_to_commit = AlignUp(size_to_commit, ARENA_COMMIT_GRANULARITY);
-			size_to_commit = ClampTop(size_to_commit, Arena->Size);
-			ArenaImpl_Commit(base + Arena->CommitPos, size_to_commit);
-			Arena->CommitPos += size_to_commit;
+			size_to_commit = ClampTop(size_to_commit, arena->size);
+			ArenaImpl_Commit(base + arena->commit_pos, size_to_commit);
+			arena->commit_pos += size_to_commit;
 		}
 	}
 	else {
@@ -50,27 +50,27 @@ ArenaPush(arena *Arena, u64 size)
 }
 
 func_ void *
-ArenaPushZero(arena *Arena, u64 Size)
+ArenaPushZero(Arena *arena, U64 Size)
 {
-	void *memory = PushSize(Arena, Size);
+	void *memory = PushSize(arena, Size);
 	MemoryZero(memory, Size);
 	return(memory);
 }
 
 func_ void
-ArenaPop(arena *Arena, u64 size)
+ArenaPop(Arena *arena, U64 size)
 {
-	if(Arena->Pos > size) {
-		u64 pos = Arena->Pos - size;
-		Arena->Pos = pos;
+	if(arena->pos > size) {
+		U64 pos = arena->pos - size;
+		arena->pos = pos;
 		
-		u64 round_up_pos = AlignUp(Arena->Pos, ARENA_COMMIT_GRANULARITY);
-		u64 decommit_size = Arena->CommitPos - round_up_pos;
+		U64 round_up_pos = AlignUp(arena->pos, ARENA_COMMIT_GRANULARITY);
+		U64 decommit_size = arena->commit_pos - round_up_pos;
 		if(decommit_size) {
 			Assert(decommit_size%ARENA_COMMIT_GRANULARITY == 0);
-			Arena->CommitPos = round_up_pos;
+			arena->commit_pos = round_up_pos;
 			
-			void *ptr = (u8 *)Arena + round_up_pos;
+			void *ptr = (U8 *)arena + round_up_pos;
 			ArenaImpl_Decommit(ptr, decommit_size);
 		}
 	}
@@ -80,66 +80,66 @@ ArenaPop(arena *Arena, u64 size)
 }
 
 func_ void
-ArenaSetPos(arena *Arena, u64 pos)
+ArenaSetPos(Arena *arena, U64 pos)
 {
-	if(pos < Arena->Pos) {
-		u64 size = Arena->Pos - pos;
-		ArenaPop(Arena, size);
+	if(pos < arena->pos) {
+		U64 size = arena->pos - pos;
+		ArenaPop(arena, size);
 	}
 }
 
 func_ void *
-ArenaPos(arena *Arena)
+ArenaPos(Arena *arena)
 {
-	void *pos = (u8 *)Arena + Arena->Pos;
+	void *pos = (U8 *)arena + arena->pos;
 	return(pos);
 }
 
 func_ void *
-ArenaStart(arena *Arena)
+ArenaStart(Arena *arena)
 {
-	void *pos = (u8 *)Arena + sizeof(arena);
+	void *pos = (U8 *)arena + sizeof(Arena);
 	return(pos);
 }
 
 func_ void *
-ArenaEnd(arena *Arena)
+ArenaEnd(Arena *arena)
 {
-	void *result = (u8 *)Arena + Arena->Pos;
+	void *result = (U8 *)arena + arena->pos;
 	return(result);
 }
 
 func_ void
-ArenaClear(arena *Arena)
+ArenaClear(Arena *arena)
 {
-	u64 size = Arena->Pos - sizeof(arena);
-	ArenaPop(Arena, size);
+	U64 size = arena->pos - sizeof(Arena);
+	ArenaPop(arena, size);
 }
 
 func_ void
-ArenaRelease(arena *Arena)
+ArenaRelease(Arena *arena)
 {
-	ArenaImpl_Release(Arena);
+	ArenaImpl_Release(arena);
 }
 
-func_ u64    
-ArenaSize(arena *Arena)
+func_ U64    
+ArenaSize(Arena *arena)
 {
-	u64 result = Arena->Pos - sizeof(arena);
+	U64 result = arena->pos - sizeof(Arena);
 	return(result);
 }
 
-func_ arena_temp
-BeginArenaTemp(arena *Arena)
+func_ ArenaTemp
+BeginArenaTemp(Arena *arena)
 {
-	arena_temp result = {
-		Arena, Arena->Pos,
+	ArenaTemp result = {
+		arena, arena->pos,
 	};
 	return(result);
 }
 
 func_ void
-EndArenaTemp(arena_temp temp)
+EndArenaTemp(ArenaTemp temp)
 {
-	ArenaSetPos(temp.Arena, temp.Pos);
+	ArenaSetPos(temp.arena, temp.pos);
 }

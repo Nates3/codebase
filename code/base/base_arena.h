@@ -5,19 +5,19 @@
 ///////////////////////////////////
 // NOTE(nates): Arenas
 
-typedef struct arena
+typedef struct Arena
 {
-	u64 Pos;
-	u64 CommitPos;
-	u64 Size;
-	u64 Align;
-}arena;
+	U64 pos;
+	U64 commit_pos;
+	U64 size;
+	U64 align;
+}Arena;
 
-typedef struct arena_temp
+typedef struct ArenaTemp
 {
-	arena *Arena;
-	u64 Pos;
-}arena_temp;
+	Arena *arena;
+	U64 pos;
+}ArenaTemp;
 
 
 // IMPORTANT NOTE(nates): Arena's are implimented differently depending
@@ -31,23 +31,23 @@ typedef struct arena_temp
 /////////////////////////////////
 // NOTE(nates): Arena functions
 
-func_ arena *ArenaAlloc(u64 size);
-func_ void  *ArenaPush(arena *Arena, u64 Size);
-func_ void  *ArenaPushZero(arena *Arena, u64 Size);
-func_ void   ArenaPop(arena *Arena, u64 Size);
-func_ void   ArenaSetPos(arena *Arena, u64 Pos);
-func_ void  *ArenaPos(arena *Arena);
-func_ void  *ArenaStart(arena *Arena);
-func_ void  *ArenaEnd(arena *Arena);
-func_ void   ArenaClear(arena *Arena);
-func_ void   ArenaRelease(arena *Arena);
-func_ u64    ArenaSize(arena *Arena);
-#define PushArray(Arena, Type, Count) (Type *)ArenaPush(Arena, sizeof(Type)*Count)
-#define PushArrayZero(Arena, Type, Count) (Type *)ArenaPushZero(Arena, sizeof(Type)*Count);
-#define PushSize(Arena, Size) ArenaPush(Arena, Size)
-#define PushSizeZero(Arena, Size) ArenaPushZero(Arena, Size)
+func_ Arena *ArenaAlloc(U64 size);
+func_ void  *ArenaPush(Arena *arena, U64 size);
+func_ void  *ArenaPushZero(Arena *arena, U64 size);
+func_ void   ArenaPop(Arena *arena, U64 size);
+func_ void   ArenaSetPos(Arena *arena, U64 pos);
+func_ void  *ArenaPos(Arena *arena);
+func_ void  *ArenaStart(Arena *arena);
+func_ void  *ArenaEnd(Arena *arena);
+func_ void   ArenaClear(Arena *arena);
+func_ void   ArenaRelease(Arena *arena);
+func_ U64    ArenaSize(Arena *arena);
+#define PushArray(arena, type, count) (type *)ArenaPush(arena, sizeof(type)*count)
+#define PushArrayZero(arena, type, count) (type *)ArenaPushZero(arena, sizeof(type)*count);
+#define PushSize(arena, size) ArenaPush(arena, size)
+#define PushSizeZero(arena, size) ArenaPushZero(arena, size)
 
-func_ arena_temp BeginArenaTemp(arena *Arena);
-func_ void      EndArenaTemp(arena_temp Temp);
+func_ ArenaTemp BeginArenaTemp(Arena *arena);
+func_ void      EndArenaTemp(ArenaTemp temp);
 
 #endif //BASE_ARENA_H
